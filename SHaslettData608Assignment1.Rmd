@@ -9,6 +9,10 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(forcats)
+
 ```
 
 **Principles of Data Visualization and Introduction to ggplot2**
@@ -46,10 +50,15 @@ Think a bit on what these summaries mean. Use the space below to add some more r
 
 Create a graph that shows the distribution of companies in the dataset by State (ie how many are in each state). There are a lot of States, so consider which axis you should use. This visualization is ultimately going to be consumed on a 'portrait' oriented screen (ie taller than wide), which should further guide your layout choices.
 
-```{r, eval=TRUE, message=FALSE, warning=FALSE}
-
-# Answer Question 1 here
-
+```{r fig.height = 10, fig.width = 7, eval = TRUE, message = FALSE, warning = FALSE}
+ggplot(inc, aes(x = fct_infreq(State))) + 
+    geom_bar(fill = '#FA8072', stat = 'count') +
+    coord_flip() +
+    geom_text(aes(label=..count..), stat = 'count', size = 3.5, hjust = -0.2, color = '#A52A2A') +
+    xlab('State') +
+    ylab('Number of Companies') +
+    ggtitle('Distribution of Companies by US State') + 
+    theme(panel.background = element_blank())
 ```
 
 ## Quesiton 2
@@ -57,8 +66,6 @@ Create a graph that shows the distribution of companies in the dataset by State 
 Lets dig in on the state with the 3rd most companies in the data set. Imagine you work for the state and are interested in how many people are employed by companies in different industries. Create a plot that shows the average and/or median employment by industry for companies in this state (only use cases with full data, use R's `complete.cases()` function.) In addition to this, your graph should show how variable the ranges are, and you should deal with outliers.
 
 ```{r, eval=TRUE, message=FALSE, warning=FALSE}
-
-# Answer Question 2 here
 
 ```
 
