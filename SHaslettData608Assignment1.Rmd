@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(ggplot2)
 library(forcats)
+library(reshape2)
 
 ```
 
@@ -65,8 +66,21 @@ ggplot(inc, aes(x = fct_infreq(State))) +
 
 Lets dig in on the state with the 3rd most companies in the data set. Imagine you work for the state and are interested in how many people are employed by companies in different industries. Create a plot that shows the average and/or median employment by industry for companies in this state (only use cases with full data, use R's `complete.cases()` function.) In addition to this, your graph should show how variable the ranges are, and you should deal with outliers.
 
-```{r, eval=TRUE, message=FALSE, warning=FALSE}
+```{r fig.height = 5, fig.width = 8, eval=TRUE, message=FALSE, warning=FALSE}
+ny_companies <- inc %>%
+  filter(State == 'NY') %>%
+  filter(complete.cases(.)) %>%
+  group_by(Industry) %>%
+  summarize(Average=mean(Employees), Median=median(Employees))
 
+ggplot(melt(ny_companies, id.vars = 'Industry'), aes(x = Industry, y = value, fill = variable)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  coord_flip() +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_line(size = 0.15, linetype = 'solid', color = '#808080'),
+        panel.grid.minor.x = element_line(size = 0.15, linetype = 'solid', color = '#696969'),
+        panel.grid.major.y = element_line(size = 0.15, linetype = 'solid', color = '#2F4F4F')) +
+  ggtitle('New York Employee Count per Industry') + ylab('Employee Count')
 ```
 
 ## Question 3
