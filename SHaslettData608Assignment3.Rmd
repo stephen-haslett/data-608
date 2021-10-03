@@ -1,0 +1,49 @@
+---
+title: "Data 608 Assignment 3"
+subtitle: "Interactive Visualizations in R"
+author: "Stephen Haslett"
+date: "9/29/2021"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(forcats)
+library(reshape2)
+library(psych)
+```
+
+### Assignment Instructions
+
+I have provided you with data about mortality from all 50 states and the District of Columbia. Please access it at - https://github.com/charleyferrari/CUNY_DATA_608/tree/master/module3/data.
+
+You are invited to gather more data from our provider, the CDC WONDER system, at https://wonder.cdc.gov. 
+
+- This assignment must be done in R. It must be done using the ‘shiny’ package.
+- It is recommended you use an R package that supports interactive graphing such as plotly, or vegalite, but this is not required.
+- Your apps must be deployed, I won’t be accepting raw files. Luckily, you can pretty easily deploy apps with a free account at shinyapps.io.
+
+
+```{r, eval=TRUE, message=FALSE, warning=FALSE}
+# Import the mortality dataset into R. 
+mortalityData <- read.csv("https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module3/data/cleaned-cdc-mortality-1999-2010-2.csv", header = TRUE)
+```
+
+
+### Question 1
+
+As a researcher, you frequently compare mortality rates from particular causes across different States. You need a visualization that will let you see (for 2010 only) the crude mortality rate, across all States, from one cause (for example, Neoplasms, which are effectively cancers). Create a visualization that allows you to rank States by crude mortality for each cause of death.
+
+```{r fig.height = 10, fig.width = 7, eval = TRUE, message = FALSE, warning = FALSE}
+```
+
+## Question 2
+
+Often you are asked whether particular States are improving their mortality rates (per cause) faster than, or slower than, the national average. Create a visualization that lets your clients see this for themselves for one cause of death at the time. Keep in mind that the national average should be weighted by the national population.
+
+```{r fig.height = 5, fig.width = 8, eval=TRUE, message=FALSE, warning=FALSE}
+```
