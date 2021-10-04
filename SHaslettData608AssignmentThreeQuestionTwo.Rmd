@@ -48,10 +48,10 @@ nationalAverageMortalityData <- mortalityData %>%
   group_by(Year, ICD.Chapter) %>%
   mutate(NationalPopulation = sum(Population),
          NationalCount = sum(Deaths), 
-         NationalCrude.Rate = round(100000 * (NationalCount/NationalPopulation), 2)) %>% 
+         NationalCrude.Rate = round(100000 * (NationalCount/NationalPopulation), 1)) %>% 
   group_by(Year, ICD.Chapter, State) %>%
   mutate(SumCount = sum(Deaths),
-         SumCrude.Rate = round(100000 * (SumCount/Population), 2)) %>%
+         SumCrude.Rate = round(100000 * (SumCount/Population), 1)) %>%
   select(ICD.Chapter, State, Year, NationalCrude.Rate, SumCrude.Rate)
 
 head(nationalAverageMortalityData)
@@ -60,7 +60,7 @@ head(nationalAverageMortalityData)
 
 
 ```{r question2ShinyApp, eval=TRUE, message=FALSE, warning=FALSE}
-interface <- fluidPage(
+ui<- fluidPage(
   headerPanel('US State Crude Mortality Rates by Cause of Death Compared To National Average'),
   sidebarPanel(
   selectInput("State", 'State:',
@@ -81,14 +81,14 @@ interface <- fluidPage(
   ))
 
 # Define the Shinny Server.
-app_two_server <- shinyServer(function(input, output, session) {
+server <- shinyServer(function(input, output, session) {
 output$NationalCDRatePlot <- renderPlot({
     ggplot(data = nationalAverageMortalityData[nationalAverageMortalityData$State == input$State & nationalAverageMortalityData$ICD.Chapter == input$Cause,], aes(x = Year, y = SumCrude.Rate)) +
       labs(x = 'Year', y = 'Crude Mortality Rate') +  
       geom_bar(stat = 'identity', fill = '#00008B') +
       # Conditionally render the National Crude Mortality rate if the Overlay National Crude Mortality Rate Average checkbox is checked.
       if (input$national_rate) {
-        geom_line(aes(x = Year, y = NationalCrude.Rate), col = '#DC143C', lwd = 1)
+        geom_line(aes(x = Year, y = NationalCrude.Rate), col = 'red', lwd = 1)
       }
       else {
         NULL
@@ -98,5 +98,5 @@ output$NationalCDRatePlot <- renderPlot({
   )
 })
 
-shinyApp(ui=interface, server=app_two_server)
+shinyApp(ui=ui, server=server)
 ```
