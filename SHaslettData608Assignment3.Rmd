@@ -30,13 +30,15 @@ You are invited to gather more data from our provider, the CDC WONDER system, at
 
 ```{r, eval=TRUE, message=FALSE, warning=FALSE}
 # Import the mortality dataset into R. 
-mortalityData <- read.csv("https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module3/data/cleaned-cdc-mortality-1999-2010-2.csv", header = TRUE, stringsAsFactors = FALSE)
+url <- "https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module3/data/cleaned-cdc-mortality-1999-2010-2.csv"
+mortalityData <- read.csv(url, header = TRUE, stringsAsFactors = FALSE, sep = ',', encoding = "us-ascii")
+head(mortalityData)
 ```
 
 
 ### Question 1
 
-As a researcher, you frequently compare mortality rates from particular causes across different States. You need a visualization that will let you see (for 2010 only) the crude mortality rate, across all States, from one cause (for example, Neoplasms, which are effectively cancers). Create a visualization that allows you to rank States by crude mortality for each cause of death.
+As a researcher, you frequently compare mortality rates from particular causes across different States. You need a visualization that will let you see (for 2010 only) the crude mortality rate, across all States, from one cause (for example, Neoplasms, which are effectively cancers).
 
 ```{r question1, fig.height = 10, fig.width = 7, eval = TRUE, message = FALSE, warning = FALSE}
 # Extract Neoplasm deaths for 2010 from the dataset.
@@ -67,7 +69,7 @@ subplot(neoplasmCrudeMortalityChart)
 ```
 
 
-
+Create a visualization that allows you to rank States by crude mortality for each cause of death.
 
 
 ```{r question1ShinyAppCode, eval = TRUE, message = FALSE, warning = FALSE}
@@ -112,7 +114,7 @@ server <- shinyServer(function(input, output, session) {
 })
 
 # Render the App.
-shinyApp(ui = ui, server = server)
+#shinyApp(ui = ui, server = server)
 ```
 
 
@@ -122,5 +124,59 @@ shinyApp(ui = ui, server = server)
 
 Often you are asked whether particular States are improving their mortality rates (per cause) faster than, or slower than, the national average. Create a visualization that lets your clients see this for themselves for one cause of death at the time. Keep in mind that the national average should be weighted by the national population.
 
-```{r fig.height = 5, fig.width = 8, eval=TRUE, message=FALSE, warning=FALSE}
+```{r question2, eval=TRUE, message=FALSE, warning=FALSE}
+nationalAverageMortalityData <- mortalityData %>%
+  group_by(Year, ICD.Chapter) %>%
+  mutate(NationalPopulation = sum(Population),
+         NationalCount = sum(Deaths), 
+         NationalCrude.Rate = 10^5 * (NationalCount/NationalPopulation)) %>% 
+  group_by(Year, ICD.Chapter, State) %>%
+  mutate(SumCount = sum(Deaths),
+         SumCrude.Rate = 10^5 * (SumCount/Population)) %>%
+  select(ICD.Chapter, State, Year, NationalCrude.Rate, SumCrude.Rate)
+head(nationalAverageMortalityData)
+
+```
+
+
+
+```{r question2ShinyApp, eval=TRUE, message=FALSE, warning=FALSE}
+ui <- fluidPage(
+  headerPanel('US State Crude Mortality Rates by Cause of Death Compared To National Average'),
+  sidebarPanel(
+  selectInput("Q2.1", 'State:',
+              width = 'auto',
+              choices = nationalAverageMortalityData$State, 1
+  ),
+  selectInput("Q2.2", 'Cause of Death:',
+              width = 'auto',
+              choices = nationalAverageMortalityData$ICD.Chapter, 1
+  ),
+  checkboxInput(inputId = "national_rate", label = strong('Overlay National Crude Mortality Rate Average'), value = FALSE),
+  helpText("Select a State and Cause of Death above to see the crude mortality rate."),
+  width = "auto"
+  ),
+  mainPanel(
+    htmlOutput(outputId = 'national-results'),
+    plotOutput('NationalCDRatePlot', height = 'auto')
+  ))
+
+# Define the Shinny Server.
+server <- shinyServer(function(input, output, session) {
+output$NationalCDRatePlot <- renderPlot({
+    ggplot(data = nationalAverageMortalityData[nationalAverageMortalityData$State == input$Q2.1 & nationalAverageMortalityData$ICD.Chapter == input$Q2.2,], aes(x = Year, y = SumCrude.Rate)) +
+      labs(x = 'Year', y = 'Crude Mortality Rate') +  
+      geom_bar(stat = 'identity', fill = "steelblue") +
+      # Conditionally render the National Crude Mortality rate if the Overlay National Crude Mortality Rate Average checkbox is checked.
+      if (input$national_rate) {
+        geom_line(aes(x = Year, y = NationalCrude.Rate), col = '#B22222', lwd = 1)
+      }
+  }, height = function() {
+    session$clientData$output_NationalCDRatePlot_width}
+  )
+})
+
+
+# Render the App.
+shinyApp(ui = ui, server = server)
 ```
