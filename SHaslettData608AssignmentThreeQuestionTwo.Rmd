@@ -88,7 +88,7 @@ output$NationalCDRatePlot <- renderPlot({
       geom_bar(stat = 'identity', fill = '#00008B') +
       # Conditionally render the National Crude Mortality rate if the Overlay National Crude Mortality Rate Average checkbox is checked.
       if (input$national_rate) {
-        geom_line(aes(x = Year, y = NationalCrude.Rate), col = 'red', lwd = 1)
+        geom_line(aes(x = Year, y = NationalCrude.Rate), col = 'red',  group = 1)
       }
       else {
         NULL
