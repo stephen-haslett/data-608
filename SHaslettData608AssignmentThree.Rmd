@@ -116,11 +116,6 @@ server <- shinyServer(function(input, output, session) {
     session$clientData$output_CDRatePlot_width}
   )
 })
-
-
-
-# Render the App.
-shinyApp(ui=ui, server=server)
 ```
 
 
@@ -184,8 +179,15 @@ output$NationalCDRatePlot <- renderPlot({
     session$clientData$output_NationalCDRatePlot_width}
   )
 })
+```
 
-
-# Render the App.
+### Shiny Apps For Questions One and Two
+```{r ShinyAppOne, eval=TRUE, message=FALSE, warning=FALSE}
+# Render App One.
+shinyApp(ui=ui, server=server)
 shinyApp(ui=interface, server=app_two_server)
 ```
+
+\ 
+
+\ 
