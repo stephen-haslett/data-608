@@ -31,7 +31,7 @@ You are invited to gather more data from our provider, the CDC WONDER system, at
 ```{r, eval=TRUE, message=FALSE, warning=FALSE}
 # Import the mortality dataset into R. 
 url <- "https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module3/data/cleaned-cdc-mortality-1999-2010-2.csv"
-mortalityData <- read.csv(url, header = TRUE, stringsAsFactors = FALSE, skipNul = TRUE)
+mortalityData <- read.csv(url, header = TRUE, stringsAsFactors = FALSE, skipNul = TRUE, fileEncoding="UTF-8")
 
 # Change Population and Deaths columns to numeric to prevent processing errors.
 mortalityData$Population <- as.numeric(mortalityData$Population)
