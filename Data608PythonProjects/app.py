@@ -11,8 +11,8 @@ from dash.dependencies import Input, Output
 
 # Pull in the New York City tree census data using the socrata API.
 for count in range(0, 5000, 1000):
-    url = ('https://data.cityofnewyork.us/resource/nwxe-4ae8.json?$limit=1000&$offset=' + str(count) +\
-           '&$select=borocode,spc_common,health,steward,count(tree_id)' +\
+    url = ('https://data.cityofnewyork.us/resource/nwxe-4ae8.json?$limit=1000&$offset=' + str(count) +
+           '&$select=borocode,spc_common,health,steward,count(tree_id)' +
            '&$group=borocode,spc_common,health,steward').replace(' ', '%20')
     trees = pd.read_json(url)
 
@@ -29,7 +29,7 @@ trees_data = trees_data.dropna(axis=0, how='any')
 # or poor health according to the ‘health’ variable?"
 totals = trees_data.groupby(['borocode', 'spc_common'])['count_tree_id'].sum()
 totals = totals.reset_index(drop=False)
-totals.columns = ['borocode', 'spc_common', 'total_for_specie_in_borough']
+totals.columns = ['borocode', 'spc_common', 'borough_species_total']
 
 # Borough tree species health totals.
 species_health_boro_total = trees_data.groupby(['borocode', 'spc_common', 'health'])['count_tree_id'].sum()
@@ -38,7 +38,7 @@ species_health_boro_total.columns = ['borocode', 'spc_common', 'health', 'total'
 
 # Tree proportions.
 tree_props = pd.merge(species_health_boro_total, totals, on=['borocode', 'spc_common'])
-tree_props['ratio'] = tree_props['total'] / tree_props['total_for_specie_in_borough']
+tree_props['ratio'] = tree_props['total'] / tree_props['borough_species_total']
 tree_props['spc_common'] = tree_props['spc_common'].apply(lambda x: x.title())
 
 
@@ -79,7 +79,7 @@ app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen
 app.layout = html.Div([
     html.H4('Tree Species'),
     dcc.Dropdown(
-        id='specie',
+        id='species',
         options=[{'label': i, 'value': i} for i in species_filter_data],
         value="American Beech",
         style={'height': 'auto', 'width': '300px'}
@@ -93,7 +93,7 @@ app.layout = html.Div([
 
 @app.callback(
     Output('graph-ratio', 'figure'),
-    [Input('specie', 'value')])
+    [Input('species', 'value')])
 def update_figure_question_one(species_selection):
     filtered_data = tree_props[tree_props.spc_common == species_selection]
     manhattan = filtered_data[filtered_data.borocode == 1]
@@ -145,7 +145,7 @@ def update_figure_question_one(species_selection):
 # Render the Dash app for Question Two.
 @app.callback(
     Output('graph-health', 'figure'),
-    [Input('specie', 'value')])
+    [Input('species', 'value')])
 def update_figure_question_two(species_selection):
     filtered_data = total_health_index[total_health_index.spc_common == species_selection]
     traces_question_two = []
