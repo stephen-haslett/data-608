@@ -8,40 +8,49 @@
     <h1>Data 608 Assignment 5 - Introduction to Javascript</h1>
     <p><b>Stephen Haslett<br/>11/01/21</b></p>
     <h2>Beginner Section</h2>
-    <h3>Exercise One</h3>
-    <p>Create a function to reverse any word that you type in. This can be typed into either an input box or an alert box, and then print the result in a box or on the webpage.</p>
+    <!-- Exercise One -->
+    <div id="exercise-one" style="height: 180px;">
+      <h3>Exercise One</h3>
+      <p>Create a function to reverse any word that you type in. This can be typed into either an input box or an alert box, and then print the result in a box or on the webpage.</p>
+      <script type="text/javascript">
+        // Takes a word as a parameter and returns the word in reverse.
+        function reverseWord(word) {
+          if (word.length !== 0) {
+            let wordReversal = word.split('').reverse().join('');
+            let reversedWord = '<p><b>' + word + '</b>' + ' <i>in reverse is</i> ' + '<b>' + wordReversal + '</b></p>';
 
-    <script type="text/javascript">
-      // Takes a word as a parameter and returns the word in reverse.
-      function reverseWord(word) {
-        if (word.length !== 0) {
-          let wordReversal = word.split('').reverse().join('');
-          let reversedWord = '<p><b>' + word + '</b>' + ' <i>in reverse is</i> ' + '<b>' + wordReversal + '</b></p>';
-
-          return reversedWord;
+            return reversedWord;
+          }
         }
-      }
 
-      // Prints the reversed word to the screen.
-      function printReversedWord() {
-        let reversedWord = document.getElementById('word-reversal').value;
-        if (reversedWord.length !== 0) {
-          let result = document.getElementById('results');
-          result.innerHTML = reverseWord(reversedWord);
+        // Prints the reversed word to the screen.
+        function printReversedWord() {
+          let reversedWord = document.getElementById('word-reversal').value;
+          if (reversedWord.length !== 0) {
+            let result = document.getElementById('results');
+            result.innerHTML = reverseWord(reversedWord);
+          }
         }
-      }
-    </script>
+      </script>
 
-    <!-- Create a form to contain the input field and submit button. -->
-    <form>
-      <!-- Create the input field. -->
-      <p>Type a word in the box below and click "<b><i>Reverse</i></b>" to see it in reverse order.</p>
-      <input id="word-reversal" type="text" size="25">
-      <!-- Create the submit button. -->
-      <input type="button" value="Reverse" onClick="printReversedWord();">
-    </form>
-      <br />
+      <!-- Create a form to contain the input field and submit button. -->
+      <form>
+        <!-- Create the input field. -->
+        <p>Type a word in the box below and click "<b><i>Reverse</i></b>" to see it in reverse order.</p>
+        <input id="word-reversal" type="text" size="25">
+        <!-- Create the submit button. -->
+        <input type="button" value="Reverse" onClick="printReversedWord();">
+      </form>
       <!-- Create a div to print the results to the screen. -->
       <div id="results"></div>
+    </div>
+
+    <!-- Exercise Two -->
+    <div id="exercise-two" style="height: 20%;">
+      <h3>Exercise Two</h3>
+      <p>Create a function that takes an input number, and prints a table with the first 20 multiples of the number, in order 5x4.</p>
+      <script type="text/javascript">
+      </script>
+    </div>
   </body>
 </html>
