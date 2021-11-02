@@ -10,7 +10,36 @@
     <h2>Beginner Section</h2>
     <h3>Exercise One</h3>
     <p>Create a function to reverse any word that you type in. This can be typed into either an input box or an alert box, and then print the result in a box or on the webpage.</p>
+
     <script type="text/javascript">
+      // Takes a word as a parameter and returns the word in reverse.
+      function reverseWord(word) {
+        if (word.length !== 0) {
+          let wordReversal = word.split('').reverse().join('');
+          let reversedWord = '<p><b>' + word + '</b>' + ' <i>in reverse is</i> ' + '<b>' + wordReversal + '</b></p>';
+
+          return reversedWord;
+        }
+      }
+
+      // Prints the reversed word to the screen.
+      function printReversedWord() {
+        let reversedWord = document.getElementById('word-reversal').value;
+        if (reversedWord.length !== 0) {
+          let result = document.getElementById('results');
+          result.innerHTML = reverseWord(reversedWord);
+        }
+      }
     </script>
+
+    <!-- Create a form to contain the input field and submit button. -->
+    <form>
+      <!-- Create the input field. -->
+      <input id="word-reversal" type="text" size="25">
+      <!-- Create the submit button. -->
+      <input type="button" value="Reverse" onClick="printReversedWord();">
+    </form>
+      <!-- Create a div to print the results to the screen. -->
+      <div id="results"></div>
   </body>
 </html>
