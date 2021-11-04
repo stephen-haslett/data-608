@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Data 608 Stephen Haslett Assignment 5 - Introduction to Javascript</title>
+  </head>
+  <body>
+    <h1>Data 608 Assignment 5 - Introduction to Javascript</h1>
+    <p><b>Stephen Haslett<br/>11/01/21</b></p>
+    <div id="beginner-section">
+      <h2>Beginner Section</h2>
+      <!-- Exercise One -->
+      <div id="exercise-one" style="height: 180px;">
+        <h3>Exercise One</h3>
+        <p><b>Create a function to reverse any word that you type in. This can be typed into either an input box or an alert box, and then print the result in a box or on the webpage.</b></p>
+        <script type="text/javascript">
+          // Takes a word as a parameter and returns the word in reverse.
+          function reverseWord(word) {
+            if (word.length !== 0) {
+              let wordReversal = word.split('').reverse().join('');
+              let reversedWord = '<p><b>' + word + '</b>' + ' <i>in reverse is</i> ' + '<b>' + wordReversal + '</b></p>';
+
+              return reversedWord;
+            }
+          }
+
+          // Prints the reversed word to the screen.
+          function printReversedWord() {
+            let reversedWord = document.getElementById('word-reversal').value;
+            if (reversedWord.length !== 0) {
+              let result = document.getElementById('results');
+              result.innerHTML = reverseWord(reversedWord);
+            }
+          }
+        </script>
+
+        <!-- Create a form to contain the input field and submit button. -->
+        <form>
+          <!-- Create the input field. -->
+          <p>Type a word in the box below and click "<b><i>Reverse</i></b>" to see it in reverse order.</p>
+          <input id="word-reversal" type="text" size="25">
+          <!-- Create the submit button. -->
+          <input type="button" value="Reverse" onClick="printReversedWord();">
+        </form>
+        <!-- Create a div to print the results to the screen. -->
+        <div id="results"></div>
+      </div>
+
+      <!-- Exercise Two -->
+      <div id="exercise-two">
+        <h3>Exercise Two</h3>
+        <p><b>Create a function that takes an input number, and prints a table with the first 20 multiples of the number, in order 5x4.</b></p>
+        <script type="text/javascript">
+          // Given a number, creates and returns a table containing the first 20 multiples of the number.
+          function numberMultiplier(number) {
+            if (number.length !== 0) {
+              let multiplier = Array.from(new Array(20), (x, i) => i + 1);
+              let values = multiplier.map(x => x * number);
+              let element = '';
+
+              for (let count = 0; count < values.length; count++) {
+                if (count % 4 == 0) {
+                  element += '<tr><td>' + values[count] + '</td>';
+                }
+                else if (count + 1 % 4 == 0) {
+                  element += '<td>' + values[count] + '</td></tr>';
+                }
+                else {
+                  element += '<td>' + values[count] + '</td>';
+                }
+              }
+              let table = '<table>' + element + '</table>';
+
+              return table;
+            }
+          };
+
+          // Prints the table of results.
+          function printResults() {
+            let input = document.getElementById('number-value').value;
+            if (input.length !== 0) {
+              let results = document.getElementById('number-results');
+              results.innerHTML = numberMultiplier(input);
+            }
+          }
+        </script>
+
+        <!-- Create a form to contain the input field and submit button. -->
+        <form>
+          <!-- Create a number input field. -->
+          <p>Enter a number and click "<b><i>Print Multiples</i></b>" to print the first 20 multiples of the number.</p>
+          <input id="number-value" type="number" size="4">
+          <!-- Create the submit button. -->
+          <input type="button" value="Print Multiples" onClick="printResults();">
+        </form>
+        <br/>
+        <!-- Create a div to print the results to the screen. -->
+        <div id="number-results"></div>
+      </div>
+    </div>
+    <div id="intermediate-section">
+      <h2>Intermediate Section</h2>
+      <!-- Exercise One -->
+      <div id="exercise-one" style="height: 180px;">
+        <h3>Exercise One</h3>
+        <p><b>Write a function to load the presidents.csv data and display the data as an html table (<i>you may use a cdv parser from any available library, though I encourage you to try the d3 one</i>).</b></p>
+        <script type="text/javascript">
+        </script>
+      </div>
+
+      <!-- Exercise One -->
+      <div id="exercise-two" style="height: 180px;">
+        <h3>Exercise Two</h3>
+        <p>
+          <b>Now that you have the presidents data loaded, write a function that will return that president’s height & weight when you type it in. </b>
+          <b>This can be typed into either an input box or an alert box,<br/> and then print the result in a box or on the webpage.</b>
+        </p>
+        <script type="text/javascript">
+        </script>
+      </div>
+
+    </div>
+  </body>
+</html>
