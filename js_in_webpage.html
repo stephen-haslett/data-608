@@ -101,7 +101,7 @@
     <div id="intermediate-section">
       <h2>Intermediate Section</h2>
       <!-- Exercise One -->
-      <div id="exercise-one" style="height: 180px;">
+      <div id="exercise-one">
         <h3>Exercise One</h3>
         <p><b>Write a function to load the presidents.csv data and display the data as an html table (<i>you may use a cdv parser from any available library, though I encourage you to try the d3 one</i>).</b></p>
         <!-- Import the D3 library. -->
@@ -111,11 +111,13 @@
           // Defines the president results table.
           function presidentsTable(data, columns) {
             let resultsTable = d3.select('#presidents-info').append('table')
+              .attr('style', 'border: 1px solid black; width: 60%; border-collapse: collapse; margin-top: 25px;')
             let tableHead = resultsTable.append('thead')
             let tableBody = resultsTable.append('tbody')
 
             // Append the header row.
             tableHead.append('tr')
+              .attr('style', 'border: 1px solid black;')
               .selectAll('th')
               .data(columns).enter()
               .append('th')
@@ -125,7 +127,8 @@
             let rows = tableBody.selectAll('tr')
               .data(data)
               .enter()
-              .append('tr');
+              .append('tr')
+              .attr('style', 'border: 1px solid black;');
 
             // Create the table cells.
             let cells = rows.selectAll('td')
@@ -136,6 +139,7 @@
               })
               .enter()
               .append('td')
+                .attr('style', 'border: 1px solid black; text-align: center;')
                 .text(function (tableContent) { return tableContent.value; });
 
             return resultsTable;
@@ -167,7 +171,7 @@
       </div>
 
       <!-- Exercise Two -->
-      <div id="exercise-two" style="height: 180px;">
+      <div id="exercise-two">
         <h3>Exercise Two</h3>
         <p>
           <b>Now that you have the presidents data loaded, write a function that will return that president’s height & weight when you type it in. </b>
