@@ -101,24 +101,150 @@
     <div id="intermediate-section">
       <h2>Intermediate Section</h2>
       <!-- Exercise One -->
-      <div id="exercise-one" style="height: 180px;">
+      <div id="exercise-one">
         <h3>Exercise One</h3>
         <p><b>Write a function to load the presidents.csv data and display the data as an html table (<i>you may use a cdv parser from any available library, though I encourage you to try the d3 one</i>).</b></p>
+        <!-- Import the D3 library. -->
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <!-- Custom JS. -->
         <script type="text/javascript">
+          // Defines the president results table.
+          function presidentsTable(data, columns) {
+            let resultsTable = d3.select('#presidents-info').append('table')
+              .attr('style', 'border: 1px solid black; width: 60%; border-collapse: collapse; margin-top: 25px;')
+            let tableHead = resultsTable.append('thead')
+            let tableBody = resultsTable.append('tbody')
+
+            // Append the header row.
+            tableHead.append('tr')
+              .attr('style', 'border: 1px solid black;')
+              .selectAll('th')
+              .data(columns).enter()
+              .append('th')
+                .text(function (tableData) { return tableData; });
+
+            // Create the table rows.
+            let rows = tableBody.selectAll('tr')
+              .data(data)
+              .enter()
+              .append('tr')
+              .attr('style', 'border: 1px solid black;');
+
+            // Create the table cells.
+            let cells = rows.selectAll('td')
+              .data(function(row) {
+                return columns.map(function (column) {
+                  return { column: column, value: row[column]};
+                });
+              })
+              .enter()
+              .append('td')
+                .attr('style', 'border: 1px solid black; text-align: center;')
+                .text(function (tableContent) { return tableContent.value; });
+
+            return resultsTable;
+          }
+
+          // Clears all data from the table.
+          function clearTable() {
+            let resultsTable = d3.select('#presidents-info')
+              .selectAll('table')
+              .remove();
+          }
+
+          // Renders the Presidents table and populates it with the presidents CSV data.
+          function renderAndPopulatePresidentsTable() {
+            let presidentsDataCSV = 'https://raw.githubusercontent.com/stephen-haslett/data-608/master/data/presidents.csv';
+            let content = d3.csv(presidentsDataCSV).then(function(data) {
+              let columns = ['Name', 'Height', 'Weight'];
+              presidentsTable(data, columns);
+            });
+          }
         </script>
+        <!-- Create a form to contain the populate and clear table buttons. -->
+        <form>
+          <input type="button" value="Populate Presidents Table" onclick="clearTable(); renderAndPopulatePresidentsTable()">
+          <input type="reset" value="Clear" onclick="clearTable()">
+        </form>
+        <!-- Create a div to render the table data in. -->
+        <div id="presidents-info"></div>
       </div>
 
-      <!-- Exercise One -->
-      <div id="exercise-two" style="height: 180px;">
+      <!-- Exercise Two -->
+      <div id="exercise-two">
         <h3>Exercise Two</h3>
         <p>
           <b>Now that you have the presidents data loaded, write a function that will return that president’s height & weight when you type it in. </b>
           <b>This can be typed into either an input box or an alert box,<br/> and then print the result in a box or on the webpage.</b>
         </p>
         <script type="text/javascript">
-        </script>
-      </div>
+          // Defines the president height and weight results table.
+          function presidentsHeightWeightTable(data, columns) {
+            let resultsTable = d3.select('#presidents-height-weight-search-results').append('table')
+              .attr('style', 'border: 1px solid black; width: 60%; border-collapse: collapse; margin-top: 25px;')
+            let tableHead = resultsTable.append('thead')
+            let tableBody = resultsTable.append('tbody')
 
+            // Append the header row.
+            tableHead.append('tr')
+              .attr('style', 'border: 1px solid black;')
+              .selectAll('th')
+              .data(columns).enter()
+              .append('th').text(function (tableData) { return tableData; });
+
+            // Create the table rows.
+            let rows = tableBody.selectAll('tr')
+              .data(data)
+              .enter()
+              .append('tr')
+              .attr('style', 'border: 1px solid black;');
+
+            // Create the table cells.
+            let cells = rows.selectAll('td')
+              .data(function(row) {
+                return columns.map(function (column) {
+                  return { column: column, value: row[column]};
+                });
+              })
+              .enter()
+              .append('td')
+                .attr('style', 'border: 1px solid black; text-align: center;')
+                .text(function (tableContent) { return tableContent.value; });
+
+            return resultsTable;
+          }
+
+          // Clears all data from the table.
+          function clearHeightWeightTable() {
+            let resultsTable = d3.select('#presidents-height-weight-search-results')
+              .selectAll('table')
+              .remove();
+          }
+
+          // Renders and populates the table with president height and weight search results.
+          function renderAndPopulateResultsTable() {
+            let presidentsDataCSV = 'https://raw.githubusercontent.com/stephen-haslett/data-608/master/data/presidents.csv';
+            // Convert search value to lower case so that it matches the table data and returns a value.
+            let president = document.getElementById('search-box').value.toLowerCase()
+            if (president.length !== 0) {
+                let content = d3.csv(presidentsDataCSV).then(function(data) {
+                let columns = ['Name', 'Height', 'Weight'];
+                let dataSubset = data.filter( function(d) { return d.Name.toLowerCase().indexOf(president) !== -1});
+                presidentsHeightWeightTable(dataSubset, columns);
+              });
+            }
+          }
+        </script>
+        <!-- Create a form to contain the search box, and the "Search" and "Clear" buttons. -->
+        <form>
+          <p>Enter a presidents name to search for their height and weight.</p>
+          <input id="search-box" type="text" size="20">
+          <input type="button" value="Search" onclick="clearHeightWeightTable();  renderAndPopulateResultsTable()">
+          <input type="reset" value="Clear" onclick="clearHeightWeightTable()">
+        </form>
+        <!-- Create a div to render the table data in. -->
+        <div id="presidents-height-weight-search-results" style="height: 300px;"></div>
+      </div>
     </div>
   </body>
 </html>
