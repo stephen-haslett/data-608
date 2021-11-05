@@ -178,9 +178,73 @@
           <b>This can be typed into either an input box or an alert box,<br/> and then print the result in a box or on the webpage.</b>
         </p>
         <script type="text/javascript">
-        </script>
-      </div>
+          // Defines the president height and weight results table.
+          function presidentsHeightWeightTable(data, columns) {
+            let resultsTable = d3.select('#presidents-height-weight-search-results').append('table')
+              .attr('style', 'border: 1px solid black; width: 60%; border-collapse: collapse; margin-top: 25px;')
+            let tableHead = resultsTable.append('thead')
+            let tableBody = resultsTable.append('tbody')
 
+            // Append the header row.
+            tableHead.append('tr')
+              .attr('style', 'border: 1px solid black;')
+              .selectAll('th')
+              .data(columns).enter()
+              .append('th').text(function (tableData) { return tableData; });
+
+            // Create the table rows.
+            let rows = tableBody.selectAll('tr')
+              .data(data)
+              .enter()
+              .append('tr')
+              .attr('style', 'border: 1px solid black;');
+
+            // Create the table cells.
+            let cells = rows.selectAll('td')
+              .data(function(row) {
+                return columns.map(function (column) {
+                  return { column: column, value: row[column]};
+                });
+              })
+              .enter()
+              .append('td')
+                .attr('style', 'border: 1px solid black; text-align: center;')
+                .text(function (tableContent) { return tableContent.value; });
+
+            return resultsTable;
+          }
+
+          // Clears all data from the table.
+          function clearHeightWeightTable() {
+            let resultsTable = d3.select('#presidents-height-weight-search-results')
+              .selectAll('table')
+              .remove();
+          }
+
+          // Renders and populates the table with president height and weight search results.
+          function renderAndPopulateResultsTable() {
+            let presidentsDataCSV = 'https://raw.githubusercontent.com/stephen-haslett/data-608/master/data/presidents.csv';
+            // Convert search value to lower case so that it matches the table data and returns a value.
+            let president = document.getElementById('search-box').value.toLowerCase()
+            if (president.length !== 0) {
+                let content = d3.csv(presidentsDataCSV).then(function(data) {
+                let columns = ['Name', 'Height', 'Weight'];
+                let dataSubset = data.filter( function(d) { return d.Name.toLowerCase().indexOf(president) !== -1});
+                presidentsHeightWeightTable(dataSubset, columns);
+              });
+            }
+          }
+        </script>
+        <!-- Create a form to contain the search box, and the "Search" and "Clear" buttons. -->
+        <form>
+          <p>Enter a presidents name to search for their height and weight.</p>
+          <input id="search-box" type="text" size="20">
+          <input type="button" value="Search" onclick="clearHeightWeightTable();  renderAndPopulateResultsTable()">
+          <input type="reset" value="Clear" onclick="clearHeightWeightTable()">
+        </form>
+        <!-- Create a div to render the table data in. -->
+        <div id="presidents-height-weight-search-results" style="height: 300px;"></div>
+      </div>
     </div>
   </body>
 </html>
