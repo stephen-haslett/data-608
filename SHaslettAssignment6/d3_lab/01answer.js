@@ -8,14 +8,13 @@ d3.csv('ue_industry.csv', data => {
       .domain(d3.extent(data, d => +d.Agriculture))
       .range([580, 20]);
 
-
-	  let line = d3.line()
-				.x(d => xScale(+d.index))
-				.y(d => yScale(+d['Agriculture']))
-				.curve(d3.curveCardinal);
+    let line = d3.line()
+      .x(d => xScale(+d.index))
+      .y(d => yScale(+d['Agriculture']))
+      .curve(d3.curveCardinal);
 
     d3.select('#answer1')
       .append('path')
-		  .attr('d', line(data))
-		  .attr('stroke', '#DC143C')
+      .attr('d', line(data))
+      .attr('stroke', '#DC143C')
 });
