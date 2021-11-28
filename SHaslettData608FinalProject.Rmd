@@ -7,6 +7,11 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+# Load required libraries.
+library(tidyverse)
+library(caret)
+library(kableExtra)
 ```
 
 ## Assignment Overview
@@ -21,19 +26,83 @@ You must also include a short (2-3 paragraph) write-up on the visualization. Thi
 
 ## Assignment Objective
 
+For this assignment I would like to explore Worldwidew COVID rates. Although this is an exhaustively studied area these days, I feel that it fits the requirements of this assignment. This assignment aims to answer the following questions:
+
+
 
 ### Data Sources
 
+To conduct this assignment, I will use the [Novel Corona Virus 2019](https://www.kaggle.com/sudalairajkumar/novel-corona-virus-2019-dataset) dataset that is available via **kaggle.com**. The dataset was taken from the [John Hopkins University COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19).
 
-#### Import the Data.
+The dataset consists of 6 different CSV files:
+
+- **covid_19_data**  
+    _The main dataset that will be used for this project. This file contains data on COVID cases_,  
+    _deaths, and recoveries broken down by Country/Region, and Province/State were applicable._
+
+- **time_series_covid_19_confirmed**  
+    _Time series data on the number of confirmed cases worldwide._  
+    _The file contains longitude and latitude data that can be used to plot cases on a map._  
+
+- **time_series_covid_19_confirmed_US**  
+    _Time series data on the number of confirmed cases in the US at the county level._  
+    _This file will not be used in this project._
+
+- **time_series_covid_19_deaths**  
+    _Time series data on the number of COVID deaths worldwide._
+
+- **time_series_covid_19_deaths_US**  
+    _Time series data on the number of COVID deaths in the US at the county level._  
+    _This file will not be used in this project._
+
+- **time_series_covid_19_recovered**  
+    _Time series data on the number of recovered COVID cases worlwide._
+
+\ 
+
+For the purposes of this assignment, I will be focusing on COVID at a worldwide level and will therefore ignore the US specific datasets. The datasets I will be using are as follows: **covid_19_data**, **time_series_covid_19_confirmed**, **time_series_covid_19_deaths**, and **time_series_covid_19_recovered**. 
+
+\ 
+
+### Import the Data
 
 ```{r dataImport, eval=TRUE, message=FALSE, warning=FALSE}
+# Import the main dataset CSV file.
+covid_data_main <- read.csv('./final_project_data/covid_19_data.csv')
 
+# Import the confirmed cases time series CSV file.
+covid_ts_confirmed_cases <- read.csv('./final_project_data/time_series_covid_19_confirmed.csv')
+
+# Import the COVID deaths time series CSV file. 
+covid_ts_deaths <- read.csv('./final_project_data/time_series_covid_19_deaths.csv')
+
+# Import the COVID recoveries time series CSV file.
+covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recovered.csv')
+```
+
+\ 
+
+### Data Exploration and Cleansing
+
+#### Main Dataset
+```{r mainDataset, eval=TRUE, message=FALSE, warning=FALSE}
+# Take a look at the structure of the main dataset.
+head(covid_data_main) %>% kable() %>% kable_styling()
 ```
 
 
-### Data Cleansing
-
-```{r dataCleansing, eval=TRUE, message=FALSE, warning=FALSE}
-
+#### Confirmed Cases Time Series Dataset
+```{r confirmedCases, eval=TRUE, message=FALSE, warning=FALSE}
 ```
+
+
+#### COVID Deaths Time Series Dataset
+```{r covidDeaths, eval=TRUE, message=FALSE, warning=FALSE}
+```
+
+
+#### COVID Recoveries Time Series Dataset
+```{r covidRecoveries, eval=TRUE, message=FALSE, warning=FALSE}
+```
+
+
