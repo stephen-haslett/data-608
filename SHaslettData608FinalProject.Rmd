@@ -66,20 +66,20 @@ For the purposes of this assignment, I will be focusing on worldwide COVID infec
 
 ### Import the Data
 
-To make empty values easier to deal with, we convert them to **NA** values on import using the _read.csv()_ function's _na.strings_ option.
+To make empty values easier to deal with, we will convert them to **NA** values on import using the _read.csv()_ function's _na.strings_ option.
 
 ```{r dataImport, eval=TRUE, message=FALSE, warning=FALSE}
 # Import the main dataset CSV file.
-covid_data_main <- read.csv('./final_project_data/covid_19_data.csv', na.strings = c('', 'NA'))
+covid_data_main <- read.csv('./final_project_data/covid_19_data.csv', na.strings = c('', 'NA'), stringsAsFactors = FALSE)
 
 # Import the confirmed cases time series CSV file.
-covid_ts_confirmed_cases <- read.csv('./final_project_data/time_series_covid_19_confirmed.csv', na.strings = c('', 'NA'))
+covid_ts_confirmed_cases <- read.csv('./final_project_data/time_series_covid_19_confirmed.csv', na.strings = c('', 'NA'), stringsAsFactors = FALSE)
 
 # Import the COVID deaths time series CSV file. 
-covid_ts_deaths <- read.csv('./final_project_data/time_series_covid_19_deaths.csv', na.strings = c('', 'NA'))
+covid_ts_deaths <- read.csv('./final_project_data/time_series_covid_19_deaths.csv', na.strings = c('', 'NA'), stringsAsFactors = FALSE)
 
 # Import the COVID recoveries time series CSV file.
-covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recovered.csv', na.strings = c('', 'NA'))
+covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recovered.csv', na.strings = c('', 'NA'), stringsAsFactors = FALSE)
 ```
 
 \ 
@@ -116,13 +116,14 @@ head(covid_data_main, 40)  %>% kable() %>% kable_styling() %>% scroll_box(width 
 
 \ 
 
-After converting the NA values to "Unknown" values, there are no longer empty values in the dataset. The above results are evidence of this.
-
-Next we will look at the _Confirmed Cases_ dataset. 
+After converting the NA values to "Unknown" values, there are no longer empty values in the dataset. The above results are evidence of this. Next we will look at the _Confirmed Cases_ dataset. 
 
 
 #### Confirmed Cases Time Series Dataset
 ```{r confirmedCases, eval=TRUE, message=FALSE, warning=FALSE}
+# Take a look at the structure of the "Confirmed Cases" dataset.
+head(covid_ts_confirmed_cases, 140) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+
 # Print out a table of missing values by column (sorted in descending order).
 missingValuesOrdered <- order(-colSums(is.na(covid_ts_confirmed_cases)))
 
@@ -148,14 +149,25 @@ sum(is.na(covid_ts_confirmed_cases))
 ```
 
 
-The above NA count results confirm that the _Confirmed Cases_ dataset no longer contains missing values. However, there is still an issue with the dataset - the data is in **Wide** format. We will address this issue by converting it to **Long** using the _tidyr_'s **gather()** function.
+The above NA count results confirm that the _Confirmed Cases_ dataset no longer contains missing values. However, there are still issues with the dataset. Firstly, the data is in **Wide** format. We will address this issue by converting it to **Long** format using the **_tidyr_** package's **gather()** function. Additionally, _Date_ values are not in the correct format, so we will reformat these also. 
 
 ```{r confirmedDatasetFormatConversion, eval=TRUE, message=FALSE, warning=FALSE}
+# Convert the "Confirmed Cases" dataset to long format.
+covid_ts_confirmed_cases <- covid_ts_confirmed_cases %>%
+  gather('Date', 'Confirmed_Cases', -c('Province.State', 'Country.Region', 'Lat', 'Long'))
 
+# Remove the "X" character in front of dates so we can format the date values.
+covid_ts_confirmed_cases$Date <- sub("X", "", covid_ts_confirmed_cases$Date)
+
+# Reformat date values to "m/d/y" format so that they match those of the other datasets.
+covid_ts_confirmed_cases$Date <- format(as.Date(covid_ts_confirmed_cases$Date, format = '%m.%d.%y'), '%m/%d/%y')
+
+# Take a look at the structure of the dataset after format conversion.
+head(covid_ts_confirmed_cases, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 ```
 
 
-We will carry out the 
+The remaining time series datasets contain the same issues as the _Confirmed Cases_ dataset so we will carry out the same conversions.
 
 #### COVID Deaths Time Series Dataset
 ```{r covidDeaths, eval=TRUE, message=FALSE, warning=FALSE}
