@@ -92,6 +92,7 @@ covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recove
 head(covid_data_main, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 ```
 
+\ 
 
 The main dataset contains most of the data that is needed for the project. The first order of business is to check for NA values.
 
@@ -122,7 +123,7 @@ After converting the NA values to "Unknown" values, there are no longer empty va
 #### Confirmed Cases Time Series Dataset
 ```{r confirmedCases, eval=TRUE, message=FALSE, warning=FALSE}
 # Take a look at the structure of the "Confirmed Cases" dataset.
-head(covid_ts_confirmed_cases, 140) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+head(covid_ts_confirmed_cases, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 
 # Print out a table of missing values by column (sorted in descending order).
 missingValuesOrdered <- order(-colSums(is.na(covid_ts_confirmed_cases)))
@@ -157,7 +158,7 @@ covid_ts_confirmed_cases <- covid_ts_confirmed_cases %>%
   gather('Date', 'Confirmed_Cases', -c('Province.State', 'Country.Region', 'Lat', 'Long'))
 
 # Remove the "X" character in front of dates so we can format the date values.
-covid_ts_confirmed_cases$Date <- sub("X", "", covid_ts_confirmed_cases$Date)
+covid_ts_confirmed_cases$Date <- sub('X', '', covid_ts_confirmed_cases$Date)
 
 # Reformat date values to "m/d/y" format so that they match those of the other datasets.
 covid_ts_confirmed_cases$Date <- format(as.Date(covid_ts_confirmed_cases$Date, format = '%m.%d.%y'), '%m/%d/%y')
@@ -166,16 +167,81 @@ covid_ts_confirmed_cases$Date <- format(as.Date(covid_ts_confirmed_cases$Date, f
 head(covid_ts_confirmed_cases, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 ```
 
+\ 
 
 The remaining time series datasets contain the same issues as the _Confirmed Cases_ dataset so we will carry out the same conversions.
 
+\ 
+
 #### COVID Deaths Time Series Dataset
 ```{r covidDeaths, eval=TRUE, message=FALSE, warning=FALSE}
+# Take a look at the structure of the "Confirmed Cases" dataset.
+head(covid_ts_deaths, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+
+# Check for NA values after the conversion.
+sum(is.na(covid_ts_deaths))
+
+# Convert "Province.State" NA values to "Unknown".
+covid_ts_deaths$Province.State <- str_replace_na(covid_ts_deaths$Province.State, 'Unknown')
+
+# Drop rows with missing "Lat and "Long" values"
+covid_ts_deaths <- covid_ts_deaths[complete.cases(covid_ts_deaths$Lat),]
+covid_ts_deaths <- covid_ts_deaths[complete.cases(covid_ts_deaths$Long),]
+
+# Recheck for NA values after the conversion.
+sum(is.na(covid_ts_deaths))
+
+# Convert the "COVID Deaths" dataset to long format.
+covid_ts_deaths  <- covid_ts_deaths  %>%
+  gather('Date', 'Deaths', -c('Province.State', 'Country.Region', 'Lat', 'Long'))
+
+# Remove the "X" character in front of dates so we can format the date values.
+covid_ts_deaths$Date <- sub('X', '', covid_ts_deaths$Date)
+
+# Reformat date values to "m/d/y" format so that they match those of the other datasets.
+covid_ts_deaths$Date <- format(as.Date(covid_ts_deaths$Date, format = '%m.%d.%y'), '%m/%d/%y')
+
+# Take a look at the structure of the dataset after format conversion.
+head(covid_ts_deaths, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 ```
 
+\ 
 
 #### COVID Recoveries Time Series Dataset
 ```{r covidRecoveries, eval=TRUE, message=FALSE, warning=FALSE}
+# Take a look at the structure of the "Confirmed Cases" dataset.
+head(covid_ts_recovered, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+
+# Check for NA values after the conversion.
+sum(is.na(covid_ts_recovered))
+
+# Convert "Province.State" NA values to "Unknown".
+covid_ts_recovered$Province.State <- str_replace_na(covid_ts_recovered$Province.State, 'Unknown')
+
+# Drop rows with missing "Lat and "Long" values"
+covid_ts_recovered <- covid_ts_recovered[complete.cases(covid_ts_recovered$Lat),]
+covid_ts_recovered <- covid_ts_recovered[complete.cases(covid_ts_recovered$Long),]
+
+# Recheck for NA values after the conversion.
+sum(is.na(covid_ts_recovered))
+
+# Convert the "COVID Recoveries" dataset to long format.
+covid_ts_recovered  <- covid_ts_recovered  %>%
+  gather('Date', 'Recovered', -c('Province.State', 'Country.Region', 'Lat', 'Long'))
+
+# Remove the "X" character in front of dates so we can format the date values.
+covid_ts_recovered$Date <- sub('X', '', covid_ts_recovered$Date)
+
+# Reformat date values to "m/d/y" format so that they match those of the other datasets.
+covid_ts_recovered$Date <- format(as.Date(covid_ts_recovered$Date, format = '%m.%d.%y'), '%m/%d/%y')
+
+# Take a look at the structure of the dataset after format conversion.
+head(covid_ts_recovered, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 ```
+
+\ 
+
+### Data Visualization
+
 
 
