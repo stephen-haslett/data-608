@@ -60,24 +60,26 @@ The dataset consists of 6 different CSV files:
 
 \ 
 
-For the purposes of this assignment, I will be focusing on COVID at a worldwide level and will therefore ignore the US specific datasets. The datasets I will be using are as follows: **covid_19_data**, **time_series_covid_19_confirmed**, **time_series_covid_19_deaths**, and **time_series_covid_19_recovered**. 
+For the purposes of this assignment, I will be focusing on worldwide COVID infections and will therefore ignore the US specific datasets. The datasets I will be using are as follows: **covid_19_data**, **time_series_covid_19_confirmed**, **time_series_covid_19_deaths**, and **time_series_covid_19_recovered**. 
 
 \ 
 
 ### Import the Data
 
+To make empty values easier to deal with, we convert them to **NA** values on import using the _read.csv()_ function's _na.strings_ option.
+
 ```{r dataImport, eval=TRUE, message=FALSE, warning=FALSE}
 # Import the main dataset CSV file.
-covid_data_main <- read.csv('./final_project_data/covid_19_data.csv')
+covid_data_main <- read.csv('./final_project_data/covid_19_data.csv', na.strings = c('', 'NA'))
 
 # Import the confirmed cases time series CSV file.
-covid_ts_confirmed_cases <- read.csv('./final_project_data/time_series_covid_19_confirmed.csv')
+covid_ts_confirmed_cases <- read.csv('./final_project_data/time_series_covid_19_confirmed.csv', na.strings = c('', 'NA'))
 
 # Import the COVID deaths time series CSV file. 
-covid_ts_deaths <- read.csv('./final_project_data/time_series_covid_19_deaths.csv')
+covid_ts_deaths <- read.csv('./final_project_data/time_series_covid_19_deaths.csv', na.strings = c('', 'NA'))
 
 # Import the COVID recoveries time series CSV file.
-covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recovered.csv')
+covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recovered.csv', na.strings = c('', 'NA'))
 ```
 
 \ 
@@ -87,14 +89,73 @@ covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recove
 #### Main Dataset
 ```{r mainDataset, eval=TRUE, message=FALSE, warning=FALSE}
 # Take a look at the structure of the main dataset.
-head(covid_data_main) %>% kable() %>% kable_styling()
+head(covid_data_main, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 ```
+
+
+The main dataset contains most of the data that is needed for the project. The first order of business is to check for NA values.
+
+```{r mainDatasetMissingValues, eval=TRUE, message=FALSE, warning=FALSE}
+# Check for NA values in the main dataset.
+colSums(is.na(covid_data_main))
+```
+
+
+As we can see from the above results, The only column that contains NA values is the  _Province.State_ column, which contains 78100 NA values. Looking at the data summary table above, some of the _Province.State_ values are classified as _Unknown_, so we will follow this convention and convert the NAs to _Unknown_ values.
+
+```{r mainDatasetNAReplacement, eval=TRUE, message=FALSE, warning=FALSE}
+# Convert "Province.State" NA values to "Unknown".
+covid_data_main$Province.State <- str_replace_na(covid_data_main$Province.State, 'Unknown')
+
+# Recheck for NA values after the conversion.
+colSums(is.na(covid_data_main))
+
+# Take a look at the structure of the main dataset again after conversion.
+head(covid_data_main, 40)  %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+```
+
+\ 
+
+After converting the NA values to "Unknown" values, there are no longer empty values in the dataset. The above results are evidence of this.
+
+Next we will look at the _Confirmed Cases_ dataset. 
 
 
 #### Confirmed Cases Time Series Dataset
 ```{r confirmedCases, eval=TRUE, message=FALSE, warning=FALSE}
+# Print out a table of missing values by column (sorted in descending order).
+missingValuesOrdered <- order(-colSums(is.na(covid_ts_confirmed_cases)))
+
+kable(colSums(is.na(covid_ts_confirmed_cases))[missingValuesOrdered]) %>%
+    kable_styling(bootstrap_options = c('striped', 'hover', 'condensed', 'responsive')) %>% 
+    scroll_box(width = '100%', height = '600px')
 ```
 
+\ 
+
+As we can see from the above table of missing values, The only columns with missing values in the dataset are: _Province.State_ (190), _Lat_ (2), and _Long_ (2). As with the main dataset, we will convert _Province.State_ NA values to "Unknown". For the missing Latitude and Longitude values, we will just remove the rows containing the missing values as there are only 4 of them.
+
+```{r confirmedDatasetNAReplacement, eval=TRUE, message=FALSE, warning=FALSE}
+# Convert "Province.State" NA values to "Unknown".
+covid_ts_confirmed_cases$Province.State <- str_replace_na(covid_ts_confirmed_cases$Province.State, 'Unknown')
+
+# Drop rows with missing "Lat and "Long" values"
+covid_ts_confirmed_cases <- covid_ts_confirmed_cases[complete.cases(covid_ts_confirmed_cases$Lat),]
+covid_ts_confirmed_cases <- covid_ts_confirmed_cases[complete.cases(covid_ts_confirmed_cases$Long),]
+
+# Recheck for NA values after the conversion.
+sum(is.na(covid_ts_confirmed_cases))
+```
+
+
+The above NA count results confirm that the _Confirmed Cases_ dataset no longer contains missing values. However, there is still an issue with the dataset - the data is in **Wide** format. We will address this issue by converting it to **Long** using the _tidyr_'s **gather()** function.
+
+```{r confirmedDatasetFormatConversion, eval=TRUE, message=FALSE, warning=FALSE}
+
+```
+
+
+We will carry out the 
 
 #### COVID Deaths Time Series Dataset
 ```{r covidDeaths, eval=TRUE, message=FALSE, warning=FALSE}
