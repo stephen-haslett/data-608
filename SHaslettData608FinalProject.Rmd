@@ -12,6 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(caret)
 library(kableExtra)
+library(lubridate)
+library(ggplot2)
+library(ggthemes)
+library(gganimate)
+
 
 # Disable scientific numbers for readability purposes.
 options(scipen = 999)
@@ -247,9 +252,9 @@ head(covid_ts_recovered, 40) %>% kable() %>% kable_styling() %>% scroll_box(widt
 
 \ 
 
-### Data Visualization
+## Data Visualization
 
-#### Confirmed Cases
+### Confirmed Cases
 ```{r confirmedCasesPlot, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
 covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
   group_by(Country.Region) %>% 
@@ -266,7 +271,24 @@ covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
   theme(panel.background = element_blank(),
         axis.text = element_text(size = 16),
         axis.title = element_text(size = 18, face ='bold'),
-        plot.title= element_text(size = 25, hjust = 0.5))
+        plot.title = element_text(size = 25, hjust = 0.5))
+```
+
+```{r confirmedMap, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_ts_confirmed_cases %>% 
+  filter(Date == max(Date)) %>% 
+  ggplot() +
+  borders('world', color = '#000000', fill = '#663399', resolution = 0.1) +
+  theme_map(base_size = 25) +
+  geom_point(aes(x = Long, y = Lat, size = Confirmed_Cases),
+             color = '#FF0000', alpha = .8) +
+  scale_size_continuous(range = c(1, 8)) +
+  labs(size = 'Confirmed_Cases', title = 'Worlwide Confirmed COVID 19 Cases') +
+  theme(panel.background = element_rect(fill = '#00FFFF'),
+        plot.title= element_text(hjust = 0.5),
+        legend.position = 'top',
+        legend.box.just = 'right',
+        legend.justification = c('left', 'top'))
 ```
 
 
@@ -310,6 +332,5 @@ covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
         axis.title = element_text(size = 18, face ='bold'),
         plot.title= element_text(size = 25, hjust = 0.5))
 ```
-
 
 
