@@ -95,6 +95,9 @@ covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recove
 head(covid_data_main, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 ```
 
+
+
+
 \ 
 
 The main dataset contains most of the data that is needed for the project. The first order of business is to check for NA values.
@@ -252,12 +255,12 @@ covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
   group_by(Country.Region) %>% 
   summarise(n = sum(Confirmed)) %>% 
   arrange(desc(n)) %>%
-  head(n = 10) %>% 
+  head(n = 15) %>% 
   ggplot() +
   geom_bar(fill = '#006400', stat = 'identity', width = 0.9,
            aes(x = reorder(Country.Region, n), y = n)) +
   coord_flip() +
-  labs(title = 'Confirmed COVID 19 Cases By Country', x = 'Country', y = 'Confirmed Cases') +
+  labs(title = 'Confirmed COVID 19 Cases By Country (Top 15)', x = 'Country', y = 'Confirmed Cases') +
   geom_text(aes(Country.Region, n, label = n), hjust = -0.1, size = 3.5, color = 'black',
             inherit.aes = TRUE, position = position_dodge(width = 1.2)) +
   theme(panel.background = element_blank(),
@@ -265,3 +268,48 @@ covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
         axis.title = element_text(size = 18, face ='bold'),
         plot.title= element_text(size = 25, hjust = 0.5))
 ```
+
+
+#### COVID 19 Recoveries
+```{r recoveriesPlot, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
+  group_by(Country.Region) %>% 
+  summarise(n = sum(Recovered)) %>% 
+  arrange(desc(n)) %>%
+  head(n = 15) %>% 
+  ggplot() +
+  geom_bar(fill = '#8B008B', stat = 'identity', width = 0.9,
+           aes(x = reorder(Country.Region, n), y = n)) +
+  coord_flip() +
+  labs(title = 'COVID 19 Recoveries By Country (Top 15)', x = 'Country', y = 'Recoveries') +
+  geom_text(aes(Country.Region, n, label = n), hjust = -0.1, size = 3.5, color = 'black',
+            inherit.aes = TRUE, position = position_dodge(width = 1.2)) +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 18, face ='bold'),
+        plot.title= element_text(size = 25, hjust = 0.5))
+```
+
+
+#### COVID 19 Deaths
+```{r covidDeathsPlot, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
+  group_by(Country.Region) %>% 
+  summarise(n = sum(Deaths)) %>% 
+  arrange(desc(n)) %>%
+  head(n = 15) %>% 
+  ggplot() +
+  geom_bar(fill = '#B22222', stat = 'identity', width = 0.9,
+           aes(x = reorder(Country.Region, n), y = n)) +
+  coord_flip() +
+  labs(title = 'COVID 19 Deaths By Country (Top 15)', x = 'Country', y = 'Recoveries') +
+  geom_text(aes(Country.Region, n, label = n), hjust = -0.1, size = 3.5, color = 'black',
+            inherit.aes = TRUE, position = position_dodge(width = 1.2)) +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 18, face ='bold'),
+        plot.title= element_text(size = 25, hjust = 0.5))
+```
+
+
+
