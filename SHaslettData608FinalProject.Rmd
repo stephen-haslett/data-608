@@ -15,8 +15,6 @@ library(kableExtra)
 library(lubridate)
 library(ggplot2)
 library(ggthemes)
-library(gganimate)
-
 
 # Disable scientific numbers for readability purposes.
 options(scipen = 999)
@@ -262,7 +260,7 @@ covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
   arrange(desc(n)) %>%
   head(n = 15) %>% 
   ggplot() +
-  geom_bar(fill = '#006400', stat = 'identity', width = 0.9,
+  geom_bar(fill = '#663399', stat = 'identity', width = 0.9,
            aes(x = reorder(Country.Region, n), y = n)) +
   coord_flip() +
   labs(title = 'Confirmed COVID 19 Cases By Country (Top 15)', x = 'Country', y = 'Confirmed Cases') +
@@ -283,7 +281,7 @@ covid_ts_confirmed_cases %>%
   geom_point(aes(x = Long, y = Lat, size = Confirmed_Cases),
              color = '#FF0000', alpha = .8) +
   scale_size_continuous(range = c(1, 8)) +
-  labs(size = 'Confirmed_Cases', title = 'Worlwide Confirmed COVID 19 Cases') +
+  labs(size = 'Confirmed Cases', title = 'Worlwide Confirmed COVID 19 Cases') +
   theme(panel.background = element_rect(fill = '#00FFFF'),
         plot.title= element_text(hjust = 0.5),
         legend.position = 'top',
@@ -300,7 +298,7 @@ covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
   arrange(desc(n)) %>%
   head(n = 15) %>% 
   ggplot() +
-  geom_bar(fill = '#8B008B', stat = 'identity', width = 0.9,
+  geom_bar(fill = '#006400', stat = 'identity', width = 0.9,
            aes(x = reorder(Country.Region, n), y = n)) +
   coord_flip() +
   labs(title = 'COVID 19 Recoveries By Country (Top 15)', x = 'Country', y = 'Recoveries') +
@@ -310,6 +308,24 @@ covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
         axis.text = element_text(size = 16),
         axis.title = element_text(size = 18, face ='bold'),
         plot.title= element_text(size = 25, hjust = 0.5))
+```
+
+
+```{r recoveriesMap, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_ts_recovered %>% 
+  filter(Date == max(Date)) %>% 
+  ggplot() +
+  borders('world', color = '#000000', fill = '#006400', resolution = 0.1) +
+  theme_map(base_size = 25) +
+  geom_point(aes(x = Long, y = Lat, size = Recovered),
+             color = '#DAA520', alpha = .8) +
+  scale_size_continuous(range = c(1, 8)) +
+  labs(size = 'Recoveries', title = 'Worlwide COVID 19 Recoveries') +
+  theme(panel.background = element_rect(fill = '#00FFFF'),
+        plot.title= element_text(hjust = 0.5),
+        legend.position = 'top',
+        legend.box.just = 'right',
+        legend.justification = c('left', 'top'))
 ```
 
 
@@ -324,7 +340,7 @@ covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
   geom_bar(fill = '#B22222', stat = 'identity', width = 0.9,
            aes(x = reorder(Country.Region, n), y = n)) +
   coord_flip() +
-  labs(title = 'COVID 19 Deaths By Country (Top 15)', x = 'Country', y = 'Recoveries') +
+  labs(title = 'COVID 19 Deaths By Country (Top 15)', x = 'Country', y = 'Deaths') +
   geom_text(aes(Country.Region, n, label = n), hjust = -0.1, size = 3.5, color = 'black',
             inherit.aes = TRUE, position = position_dodge(width = 1.2)) +
   theme(panel.background = element_blank(),
@@ -334,3 +350,19 @@ covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
 ```
 
 
+```{r deathsMap, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_ts_deaths %>% 
+  filter(Date == max(Date)) %>% 
+  ggplot() +
+  borders('world', color = '#000000', fill = '#B22222', resolution = 0.1) +
+  theme_map(base_size = 25) +
+  geom_point(aes(x = Long, y = Lat, size = Deaths),
+             color = '#000000', alpha = .8) +
+  scale_size_continuous(range = c(1, 8)) +
+  labs(size = 'Recoveries', title = 'Worlwide COVID 19 Deaths') +
+  theme(panel.background = element_rect(fill = '#00FFFF'),
+        plot.title= element_text(hjust = 0.5),
+        legend.position = 'top',
+        legend.box.just = 'right',
+        legend.justification = c('left', 'top'))
+```
