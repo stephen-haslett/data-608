@@ -13,6 +13,7 @@ library(tidyverse)
 library(caret)
 library(kableExtra)
 library(lubridate)
+library(Hmisc)
 library(ggplot2)
 library(ggthemes)
 
@@ -74,7 +75,6 @@ The dataset consists of 6 different CSV files:
 For the purposes of this assignment, I will be focusing on worldwide COVID infections and will therefore ignore the US specific datasets. The datasets I will be using are as follows: **covid_19_data**, **time_series_covid_19_confirmed**, **time_series_covid_19_deaths**, and **time_series_covid_19_recovered**. 
 
 
-
 ### Data Importation
 
 All of the data needed for this project is available in CSV format, so we will import the data using the _read.csv()_ function. To make empty values easier to deal with, we will convert them to **NA** values on import using the _read.csv()_ function's _na.strings_ option.
@@ -100,33 +100,35 @@ covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recove
 #### Main Dataset
 
 ```{r mainDatasetGlimpse, eval=TRUE, message=FALSE, warning=FALSE}
-glimpse(covid_data_main)
+# Use the Hmisc package's describe() function to get an overview of
+# the dataset (number of variables, observations, etc.).
+describe(covid_data_main)
 ```
 
-According to the above _glimpse()_ results, the main dataset consists of 306,429 observations, and 8 variables:
+According to the above _describe()_ results, the main dataset consists of **306,429** observations, and **8** variables:
 
-- **Sno (_Serial Number_)** The unique number of the observation. This variable is of no benefit to us so it will not be utilized.
+- **Sno (_Serial Number_)** _The unique number of the observation. This variable is of no benefit to us so it will not be utilized_.
 
-- **ObservationDate** Date of the observation in _MM/DD/YYYY_ format.
+- **ObservationDate** _Date of the observation in **MM/DD/YYYY** format_.
 
-- **Province.State** The province or state in which the observation was observed.
+- **Province.State** _The province or state in which the observation was observed_.
 
-- **Country.Region** The country in which the observation was observed.
+- **Country.Region** _The country in which the observation was observed_.
 
-- **Last.Update** Date and time when the observation was last updated.
+- **Last.Update** _Date and time when the observation was last updated_.
 
-- **Confirmed** Cumulative number of confirmed COVID 19 cases up until the _Last.Update_ date.
+- **Confirmed** _Cumulative number of confirmed COVID 19 cases up until the **Last.Update** date_.
 
-- **Deaths** Cumulative number of COVID 19 deaths up until the _Last.Update_ date.
+- **Deaths** _Cumulative number of COVID 19 deaths up until the **Last.Update** date_.
 
-- **Recovered** Cumulative number of COVID 19 recoveries up until the _Last.Update_ date.
+- **Recovered** _Cumulative number of COVID 19 recoveries up until the **Last.Update** date_.
 
 \ 
 
-Now that we have an idea of the variables within the dataset, we will take a look at the first few observations of the data, and check for empty values.
+Now that we have a clear idea of the number of observations and variables contained within the dataset, we will take a look at the first few observations, and check for empty values.
 
 ```{r mainDataset, eval=TRUE, message=FALSE, warning=FALSE}
-# Take a look at the structure of the main dataset.
+# Take a look at the first 40 observation in the main dataset.
 head(covid_data_main, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 ```
 
@@ -141,7 +143,7 @@ colSums(is.na(covid_data_main))
 ```
 
 
-As we can see from the above results, The only column that contains NA values is the  _Province.State_ column, which contains 78100 NA values. Looking at the data summary table above, some of the _Province.State_ values are classified as _Unknown_, so we will follow this convention and convert the NAs to _Unknown_ values.
+As we can see from the above results, The only column that contains NA values is the  _Province.State_ column, which contains **78100** NA values. Looking at the data summary table above, some of the _Province.State_ values are classified as _Unknown_, so we will follow this convention and convert the NAs to _Unknown_ values.
 
 ```{r mainDatasetNAReplacement, eval=TRUE, message=FALSE, warning=FALSE}
 # Convert "Province.State" NA values to "Unknown".
@@ -151,17 +153,43 @@ covid_data_main$Province.State <- str_replace_na(covid_data_main$Province.State,
 colSums(is.na(covid_data_main))
 
 # Take a look at the structure of the main dataset again after conversion.
-head(covid_data_main, 40)  %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+head(covid_data_main, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 ```
 
 \ 
 
 After converting the NA values to "Unknown" values, there are no longer empty values in the dataset. The above results are evidence of this. Next we will look at the _Confirmed Cases_ dataset. 
 
+\ 
 
 #### Confirmed Cases Time Series Dataset
+
+```{r confirmedCasesGlimpse, eval=TRUE, message=FALSE, warning=FALSE}
+# Run the dataset through the describe() function.
+describe(covid_ts_confirmed_cases)
+```
+
+
+The Confirmed Cases dataset consists of **135,356** observations, and **6** variables:
+
+
+- **Province.State** _The province or state in which the observation was observed_.
+
+- **Country.Region** _The country in which the observation was observed_.
+
+- **Lat (_Latitude_)** _The latitude of the country/state(province) were the observation was observed_.
+
+- **Long (_Longitude_)** _The longitude of the country/state(province) were the observation was observed_.
+
+- **Date** _Date of the observation_.
+
+- **Confirmed_Cases** _Number of confirmed COVID 19 cases on the given date_.
+
+
+We will now take a look at the first few observations in the dataset, and check for empty values.
+
 ```{r confirmedCases, eval=TRUE, message=FALSE, warning=FALSE}
-# Take a look at the structure of the "Confirmed Cases" dataset.
+# # Take a look at the first 40 observation in the "Confirmed Cases" dataset.
 head(covid_ts_confirmed_cases, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 
 # Print out a table of missing values by column (sorted in descending order).
@@ -174,7 +202,7 @@ kable(colSums(is.na(covid_ts_confirmed_cases))[missingValuesOrdered]) %>%
 
 \ 
 
-As we can see from the above table of missing values, The only columns with missing values in the dataset are: _Province.State_ (190), _Lat_ (2), and _Long_ (2). As with the main dataset, we will convert _Province.State_ NA values to "Unknown". For the missing Latitude and Longitude values, we will just remove the rows containing the missing values as there are only 4 of them.
+As we can see from the above table of missing values, The only columns with missing values in the dataset are: _Province.State_ (190), _Lat_ (2), and _Long_ (2). As with the main dataset, we will convert _Province.State_ NA values to "**Unknown**". For the missing Latitude and Longitude values, we will just remove the rows containing the missing values as there are only 4 of them.
 
 ```{r confirmedDatasetNAReplacement, eval=TRUE, message=FALSE, warning=FALSE}
 # Convert "Province.State" NA values to "Unknown".
@@ -213,8 +241,31 @@ The remaining time series datasets contain the same issues as the _Confirmed Cas
 \ 
 
 #### COVID Deaths Time Series Dataset
+
+```{r covidDeathsGlimpse, eval=TRUE, message=FALSE, warning=FALSE}
+# Run the dataset through the describe() function.
+describe(covid_ts_deaths)
+```
+
+
+The COVID Deaths dataset consists of **135,356** observations, and **6** variables:
+
+
+- **Province.State** _The province or state in which the observation was observed_.
+
+- **Country.Region** _The country in which the observation was observed_.
+
+- **Lat (_Latitude_)** _The latitude of the country/state(province) were the observation was observed_.
+
+- **Long (_Longitude_)** _The longitude of the country/state(province) were the observation was observed_.
+
+- **Date** _Date of the observation_.
+
+- **Deaths** _Number of cCOVID 19 deaths on the given date_.
+
+
 ```{r covidDeaths, eval=TRUE, message=FALSE, warning=FALSE}
-# Take a look at the structure of the "Confirmed Cases" dataset.
+# Take a look at the first 40 observations of the "Confirmed Cases" dataset.
 head(covid_ts_deaths, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 
 # Check for NA values after the conversion.
@@ -247,8 +298,31 @@ head(covid_ts_deaths, 40) %>% kable() %>% kable_styling() %>% scroll_box(width =
 \ 
 
 #### COVID Recoveries Time Series Dataset
+
+```{r covidRecoveriesGlimpse, eval=TRUE, message=FALSE, warning=FALSE}
+# Run the dataset through the describe() function.
+describe(covid_ts_recovered)
+```
+
+
+The COVID Recoveries dataset consists of **128,440** observations, and **6** variables:
+
+
+- **Province.State** _The province or state in which the observation was observed_.
+
+- **Country.Region** _The country in which the observation was observed_.
+
+- **Lat (_Latitude_)** _The latitude of the country/state(province) were the observation was observed_.
+
+- **Long (_Longitude_)** _The longitude of the country/state(province) were the observation was observed_.
+
+- **Date** _Date of the observation_.
+
+- **Recovered** _Number of COVID 19 recoveries on the given date_.
+
+
 ```{r covidRecoveries, eval=TRUE, message=FALSE, warning=FALSE}
-# Take a look at the structure of the "Confirmed Cases" dataset.
+# Take a look at the first 40 observations of "Confirmed Cases" dataset.
 head(covid_ts_recovered, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 
 # Check for NA values after the conversion.
@@ -281,6 +355,8 @@ head(covid_ts_recovered, 40) %>% kable() %>% kable_styling() %>% scroll_box(widt
 \ 
 
 ## Data Visualization
+
+Now that the data has been cleansed and is in a workable format, we can focus on visualizing the data. 
 
 ### Confirmed Cases
 ```{r confirmedCasesPlot, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
