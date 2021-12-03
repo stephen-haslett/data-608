@@ -32,8 +32,13 @@ You must also include a short (2-3 paragraph) write-up on the visualization. Thi
 
 ## Assignment Objective
 
-For this assignment I would like to explore Worldwidew COVID rates. Although this is an exhaustively studied area these days, I feel that it fits the requirements of this assignment. This assignment aims to answer the following questions:
+For this assignment I would like to explore Worldwide COVID 19 infection rates, deaths, and recoveries. Although this is an exhaustively studied area these days, I feel that it fits the requirements of this assignment. This assignment aims to answer the following questions:
 
+- Which countries have the highest number of confirmed COVID 19 cases?
+
+- Which countries have the highest number of COVID 19 deaths?
+
+- Which countries have the highest number of COVID 19 recoveries?
 
 
 ### Data Sources
@@ -43,7 +48,7 @@ To conduct this assignment, I will use the [Novel Corona Virus 2019](https://www
 The dataset consists of 6 different CSV files:
 
 - **covid_19_data**  
-    _The main dataset that will be used for this project. This file contains data on COVID cases_,  
+    _The main dataset that will be used for this project. This file contains data on worldwide COVID cases_,  
     _deaths, and recoveries broken down by Country/Region, and Province/State were applicable._
 
 - **time_series_covid_19_confirmed**  
@@ -62,17 +67,17 @@ The dataset consists of 6 different CSV files:
     _This file will not be used in this project._
 
 - **time_series_covid_19_recovered**  
-    _Time series data on the number of recovered COVID cases worlwide._
+    _Time series data on the number of COVID recoveries worlwide._
 
-\ 
+
 
 For the purposes of this assignment, I will be focusing on worldwide COVID infections and will therefore ignore the US specific datasets. The datasets I will be using are as follows: **covid_19_data**, **time_series_covid_19_confirmed**, **time_series_covid_19_deaths**, and **time_series_covid_19_recovered**. 
 
-\ 
 
-### Import the Data
 
-To make empty values easier to deal with, we will convert them to **NA** values on import using the _read.csv()_ function's _na.strings_ option.
+### Data Importation
+
+All of the data needed for this project is available in CSV format, so we will import the data using the _read.csv()_ function. To make empty values easier to deal with, we will convert them to **NA** values on import using the _read.csv()_ function's _na.strings_ option.
 
 ```{r dataImport, eval=TRUE, message=FALSE, warning=FALSE}
 # Import the main dataset CSV file.
@@ -93,17 +98,42 @@ covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recove
 ### Data Exploration and Cleansing
 
 #### Main Dataset
+
+```{r mainDatasetGlimpse, eval=TRUE, message=FALSE, warning=FALSE}
+glimpse(covid_data_main)
+```
+
+According to the above _glimpse()_ results, the main dataset consists of 306,429 observations, and 8 variables:
+
+- **Sno (_Serial Number_)** The unique number of the observation. This variable is of no benefit to us so it will not be utilized.
+
+- **ObservationDate** Date of the observation in _MM/DD/YYYY_ format.
+
+- **Province.State** The province or state in which the observation was observed.
+
+- **Country.Region** The country in which the observation was observed.
+
+- **Last.Update** Date and time when the observation was last updated.
+
+- **Confirmed** Cumulative number of confirmed COVID 19 cases up until the _Last.Update_ date.
+
+- **Deaths** Cumulative number of COVID 19 deaths up until the _Last.Update_ date.
+
+- **Recovered** Cumulative number of COVID 19 recoveries up until the _Last.Update_ date.
+
+\ 
+
+Now that we have an idea of the variables within the dataset, we will take a look at the first few observations of the data, and check for empty values.
+
 ```{r mainDataset, eval=TRUE, message=FALSE, warning=FALSE}
 # Take a look at the structure of the main dataset.
 head(covid_data_main, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
 ```
 
 
-
-
 \ 
 
-The main dataset contains most of the data that is needed for the project. The first order of business is to check for NA values.
+The main dataset contains most of the data that is needed for the project, so we will now check for _NA_ values.
 
 ```{r mainDatasetMissingValues, eval=TRUE, message=FALSE, warning=FALSE}
 # Check for NA values in the main dataset.
