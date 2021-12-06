@@ -1,0 +1,507 @@
+---
+title: "Data608 Final Project"
+author: "Stephen Haslett"
+date: "11/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Load required libraries.
+library(tidyverse)
+library(caret)
+library(kableExtra)
+library(lubridate)
+library(Hmisc)
+library(ggplot2)
+library(ggthemes)
+
+# Disable scientific numbers for readability purposes.
+options(scipen = 999)
+```
+
+## Assignment Overview
+
+Your final project is to create a public visualization (static or interactive) using data relevant to a current policy, business, or justice issue. You may use any dataset you can find for this assignment, as long as it is either public or you have permission from the data’s owner/administrator to work with it and share it.
+Recommended data sources are: governmental data, data provided by a non-profit/Nongovernmental organizations, and data available from large, semi-structured data sets (ie social networks, company financials, etc).
+
+You must document each step of your data analysis process (excluding data acquisition) in code: this will include changing the format of the data and the creation of any images or interactive displays that are made.
+
+You must also include a short (2-3 paragraph) write-up on the visualization. This write-up must include the following: the data source, what the parameters of the data set are (geography, timeframe, what the data points are, etc) what the data shows, and why it is important. Your proposal and your final visualization must be cleared by the instructor, and will be hosted on a public page (it will be available for the world to see).
+
+
+## Assignment Objective
+
+For this assignment I would like to explore Worldwide COVID 19 infection rates, deaths, and recoveries. This assignment aims to answer the following questions:
+
+- Which countries have the highest number of confirmed COVID 19 cases?
+
+- Which countries have the highest number of COVID 19 deaths?
+
+- Which countries have the highest number of COVID 19 recoveries?
+
+
+### Data Sources
+
+To conduct this assignment, I will use the [Novel Corona Virus 2019](https://www.kaggle.com/sudalairajkumar/novel-corona-virus-2019-dataset) dataset that is available via **kaggle.com**. The dataset was taken from the [John Hopkins University COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19).
+
+The dataset consists of 6 different CSV files:
+
+- **covid_19_data**  
+    _The main dataset that will be used for this project. This file contains data on worldwide COVID cases_,  
+    _deaths, and recoveries broken down by Country/Region, and Province/State were applicable._
+
+- **time_series_covid_19_confirmed**  
+    _Time series data on the number of confirmed cases worldwide._  
+    _The file contains longitude and latitude data that can be used to plot cases on a map._  
+
+- **time_series_covid_19_confirmed_US**  
+    _Time series data on the number of confirmed cases in the US at the county level._  
+    _This file will not be used in this project._
+
+- **time_series_covid_19_deaths**  
+    _Time series data on the number of COVID deaths worldwide._
+
+- **time_series_covid_19_deaths_US**  
+    _Time series data on the number of COVID deaths in the US at the county level._  
+    _This file will not be used in this project._
+
+- **time_series_covid_19_recovered**  
+    _Time series data on the number of COVID recoveries worlwide._
+
+
+
+For the purposes of this assignment, I will be focusing on worldwide COVID infections and will therefore ignore the US specific datasets. The datasets I will be using are as follows: **covid_19_data**, **time_series_covid_19_confirmed**, **time_series_covid_19_deaths**, and **time_series_covid_19_recovered**. 
+
+
+### Data Importation
+
+All of the data needed for this project is available in CSV format, so we will import the data using the _read.csv()_ function. To make empty values easier to deal with, we will convert them to **NA** values on import using the _read.csv()_ function's _na.strings_ option.
+
+```{r dataImport, eval=TRUE, message=FALSE, warning=FALSE}
+# Import the main dataset CSV file.
+covid_data_main <- read.csv('./final_project_data/covid_19_data.csv', na.strings = c('', 'NA'), stringsAsFactors = FALSE)
+
+# Import the confirmed cases time series CSV file.
+covid_ts_confirmed_cases <- read.csv('./final_project_data/time_series_covid_19_confirmed.csv', na.strings = c('', 'NA'), stringsAsFactors = FALSE)
+
+# Import the COVID deaths time series CSV file. 
+covid_ts_deaths <- read.csv('./final_project_data/time_series_covid_19_deaths.csv', na.strings = c('', 'NA'), stringsAsFactors = FALSE)
+
+# Import the COVID recoveries time series CSV file.
+covid_ts_recovered <- read.csv('./final_project_data/time_series_covid_19_recovered.csv', na.strings = c('', 'NA'), stringsAsFactors = FALSE)
+```
+
+\ 
+
+### Data Exploration and Cleansing
+
+#### Main Dataset
+
+```{r mainDatasetGlimpse, eval=TRUE, message=FALSE, warning=FALSE}
+# Use the Hmisc package's describe() function to get an overview of
+# the dataset (number of variables, observations, etc.).
+describe(covid_data_main)
+```
+
+According to the above _describe()_ results, the main dataset consists of **306,429** observations, and **8** variables:
+
+- **Sno (_Serial Number_)** _The unique number of the observation. This variable is of no benefit to us so it will not be utilized_.
+
+- **ObservationDate** _Date of the observation in **MM/DD/YYYY** format_.
+
+- **Province.State** _The province or state in which the observation was observed_.
+
+- **Country.Region** _The country in which the observation was observed_.
+
+- **Last.Update** _Date and time when the observation was last updated_.
+
+- **Confirmed** _Cumulative number of confirmed COVID 19 cases up until the **Last.Update** date_.
+
+- **Deaths** _Cumulative number of COVID 19 deaths up until the **Last.Update** date_.
+
+- **Recovered** _Cumulative number of COVID 19 recoveries up until the **Last.Update** date_.
+
+\ 
+
+Now that we have a clear idea of the number of observations and variables contained within the dataset, we will take a look at the first few observations, and check for empty values.
+
+```{r mainDataset, eval=TRUE, message=FALSE, warning=FALSE}
+# Take a look at the first 40 observation in the main dataset.
+head(covid_data_main, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+```
+
+
+\ 
+
+The main dataset contains most of the data that is needed for the project (_number of confirmed cases, number of deaths, and number of recoveries_), so we will now check for _NA_ values.
+
+```{r mainDatasetMissingValues, eval=TRUE, message=FALSE, warning=FALSE}
+# Check for NA values in the main dataset.
+colSums(is.na(covid_data_main))
+```
+
+
+As we can see from the above results, The only column that contains NA values is the  _Province.State_ column, which contains **78100** NA values. Looking at the data summary table above, some of the _Province.State_ values are classified as _Unknown_, so we will follow this convention and convert the NAs to _Unknown_ values.
+
+```{r mainDatasetNAReplacement, eval=TRUE, message=FALSE, warning=FALSE}
+# Convert "Province.State" NA values to "Unknown".
+covid_data_main$Province.State <- str_replace_na(covid_data_main$Province.State, 'Unknown')
+
+# Recheck for NA values after the conversion.
+colSums(is.na(covid_data_main))
+
+# Take a look at the structure of the main dataset again after conversion.
+head(covid_data_main, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+```
+
+\ 
+
+After converting the NA values to "Unknown" values, there are no longer empty values in the dataset. The above results are evidence of this. Next we will look at the _Confirmed Cases_ dataset. 
+
+\ 
+
+#### Confirmed Cases Time Series Dataset
+
+The time series datasets have a lot more observations in them than the main dataset, so I will skip running them through the _describe()_ function in the interest of conserving space and will summarize the metadata instead.
+
+The Confirmed Cases dataset consists of **135,356** observations, and **6** variables:
+
+
+- **Province.State** _The province or state in which the observation was observed_.
+
+- **Country.Region** _The country in which the observation was observed_.
+
+- **Lat (_Latitude_)** _The latitude of the country/state(province) were the observation was observed_.
+
+- **Long (_Longitude_)** _The longitude of the country/state(province) were the observation was observed_.
+
+- **Date** _Date of the observation_.
+
+- **Confirmed_Cases** _Number of confirmed COVID 19 cases on the given date_.
+
+
+We will now take a look at the first few observations in the dataset, and check for empty values.
+
+```{r confirmedCases, eval=TRUE, message=FALSE, warning=FALSE}
+# # Take a look at the first 40 observation in the "Confirmed Cases" dataset.
+head(covid_ts_confirmed_cases, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+
+# Print out a table of missing values by column (sorted in descending order).
+missingValuesOrdered <- order(-colSums(is.na(covid_ts_confirmed_cases)))
+
+kable(colSums(is.na(covid_ts_confirmed_cases))[missingValuesOrdered]) %>%
+    kable_styling(bootstrap_options = c('striped', 'hover', 'condensed', 'responsive')) %>% 
+    scroll_box(width = '100%', height = '600px')
+```
+
+\ 
+
+As we can see from the above table of missing values, The only columns with missing values in the dataset are: _Province.State_ (190), _Lat_ (2), and _Long_ (2). As with the main dataset, we will convert _Province.State_ NA values to "**Unknown**". For the missing Latitude and Longitude values, we will just remove the rows containing the missing values as there are only 4 of them.
+
+```{r confirmedDatasetNAReplacement, eval=TRUE, message=FALSE, warning=FALSE}
+# Convert "Province.State" NA values to "Unknown".
+covid_ts_confirmed_cases$Province.State <- str_replace_na(covid_ts_confirmed_cases$Province.State, 'Unknown')
+
+# Drop rows with missing "Lat and "Long" values"
+covid_ts_confirmed_cases <- covid_ts_confirmed_cases[complete.cases(covid_ts_confirmed_cases$Lat),]
+covid_ts_confirmed_cases <- covid_ts_confirmed_cases[complete.cases(covid_ts_confirmed_cases$Long),]
+
+# Recheck for NA values after the conversion.
+sum(is.na(covid_ts_confirmed_cases))
+```
+
+
+The above NA count results confirm that the _Confirmed Cases_ dataset no longer contains missing values. However, there are still issues with the dataset. Firstly, the data is in **Wide** format. We will address this issue by converting it to **Long** format using the **_tidyr_** package's **gather()** function. Additionally, _Date_ values are not in the correct format, so we will reformat these also. 
+
+```{r confirmedDatasetFormatConversion, eval=TRUE, message=FALSE, warning=FALSE}
+# Convert the "Confirmed Cases" dataset to long format.
+covid_ts_confirmed_cases <- covid_ts_confirmed_cases %>%
+  gather('Date', 'Confirmed_Cases', -c('Province.State', 'Country.Region', 'Lat', 'Long'))
+
+# Remove the "X" character in front of dates so we can format the date values.
+covid_ts_confirmed_cases$Date <- sub('X', '', covid_ts_confirmed_cases$Date)
+
+# Reformat date values to "m/d/y" format so that they match those of the other datasets.
+covid_ts_confirmed_cases$Date <- format(as.Date(covid_ts_confirmed_cases$Date, format = '%m.%d.%y'), '%m/%d/%y')
+
+# Take a look at the structure of the dataset after format conversion.
+head(covid_ts_confirmed_cases, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+```
+
+\ 
+
+The remaining time series datasets contain the same issues as the _Confirmed Cases_ dataset so we will carry out the same conversions.
+
+\ 
+
+#### COVID Deaths Time Series Dataset
+
+The COVID Deaths dataset consists of **135,356** observations, and **6** variables:
+
+
+- **Province.State** _The province or state in which the observation was observed_.
+
+- **Country.Region** _The country in which the observation was observed_.
+
+- **Lat (_Latitude_)** _The latitude of the country/state(province) were the observation was observed_.
+
+- **Long (_Longitude_)** _The longitude of the country/state(province) were the observation was observed_.
+
+- **Date** _Date of the observation_.
+
+- **Deaths** _Number of cCOVID 19 deaths on the given date_.
+
+
+```{r covidDeaths, eval=TRUE, message=FALSE, warning=FALSE}
+# Take a look at the first 40 observations of the "Confirmed Cases" dataset.
+head(covid_ts_deaths, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+
+# Check for NA values after the conversion.
+sum(is.na(covid_ts_deaths))
+
+# Convert "Province.State" NA values to "Unknown".
+covid_ts_deaths$Province.State <- str_replace_na(covid_ts_deaths$Province.State, 'Unknown')
+
+# Drop rows with missing "Lat and "Long" values"
+covid_ts_deaths <- covid_ts_deaths[complete.cases(covid_ts_deaths$Lat),]
+covid_ts_deaths <- covid_ts_deaths[complete.cases(covid_ts_deaths$Long),]
+
+# Recheck for NA values after the conversion.
+sum(is.na(covid_ts_deaths))
+
+# Convert the "COVID Deaths" dataset to long format.
+covid_ts_deaths  <- covid_ts_deaths  %>%
+  gather('Date', 'Deaths', -c('Province.State', 'Country.Region', 'Lat', 'Long'))
+
+# Remove the "X" character in front of dates so we can format the date values.
+covid_ts_deaths$Date <- sub('X', '', covid_ts_deaths$Date)
+
+# Reformat date values to "m/d/y" format so that they match those of the other datasets.
+covid_ts_deaths$Date <- format(as.Date(covid_ts_deaths$Date, format = '%m.%d.%y'), '%m/%d/%y')
+
+# Take a look at the structure of the dataset after format conversion.
+head(covid_ts_deaths, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+```
+
+\ 
+
+#### COVID Recoveries Time Series Dataset
+
+The COVID Recoveries dataset consists of **128,440** observations, and **6** variables:
+
+
+- **Province.State** _The province or state in which the observation was observed_.
+
+- **Country.Region** _The country in which the observation was observed_.
+
+- **Lat (_Latitude_)** _The latitude of the country/state(province) were the observation was observed_.
+
+- **Long (_Longitude_)** _The longitude of the country/state(province) were the observation was observed_.
+
+- **Date** _Date of the observation_.
+
+- **Recovered** _Number of COVID 19 recoveries on the given date_.
+
+
+```{r covidRecoveries, eval=TRUE, message=FALSE, warning=FALSE}
+# Take a look at the first 40 observations of "Confirmed Cases" dataset.
+head(covid_ts_recovered, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+
+# Check for NA values after the conversion.
+sum(is.na(covid_ts_recovered))
+
+# Convert "Province.State" NA values to "Unknown".
+covid_ts_recovered$Province.State <- str_replace_na(covid_ts_recovered$Province.State, 'Unknown')
+
+# Drop rows with missing "Lat and "Long" values"
+covid_ts_recovered <- covid_ts_recovered[complete.cases(covid_ts_recovered$Lat),]
+covid_ts_recovered <- covid_ts_recovered[complete.cases(covid_ts_recovered$Long),]
+
+# Recheck for NA values after the conversion.
+sum(is.na(covid_ts_recovered))
+
+# Convert the "COVID Recoveries" dataset to long format.
+covid_ts_recovered  <- covid_ts_recovered  %>%
+  gather('Date', 'Recovered', -c('Province.State', 'Country.Region', 'Lat', 'Long'))
+
+# Remove the "X" character in front of dates so we can format the date values.
+covid_ts_recovered$Date <- sub('X', '', covid_ts_recovered$Date)
+
+# Reformat date values to "m/d/y" format so that they match those of the other datasets.
+covid_ts_recovered$Date <- format(as.Date(covid_ts_recovered$Date, format = '%m.%d.%y'), '%m/%d/%y')
+
+# Take a look at the structure of the dataset after format conversion.
+head(covid_ts_recovered, 40) %>% kable() %>% kable_styling() %>% scroll_box(width = '100%', height = '600px')
+```
+
+\ 
+
+## Data Visualization
+
+Now that the data has been cleansed and is in a workable format, we can focus on visualizing the data.
+
+The aim of this section is to provide 2 types of visualizations that allow viewers to get a clear picture of how COVID **infections**, **recoveries**, and **deaths** differ from country to country.
+
+To do this, I will utilize 2 main visualizations - **_A Horizontal Bar Chart_**, and a **_World Map_** containing per-country COVID data points. Both of these approaches allow viewers to easily make country-to-country COVID comparisons at a glance.
+
+My aim here is to firstly show the top 15 countries within each category (_i.e. the top 15 countries of highest confirmed cases, deaths, etc._), and then plot these in map format. 
+
+
+### Confirmed Cases
+
+```{r confirmedCasesPlot, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
+  group_by(Country.Region) %>% 
+  summarise(n = sum(Confirmed)) %>% 
+  arrange(desc(n)) %>%
+  head(n = 15) %>% 
+  ggplot() +
+  geom_bar(fill = '#663399', stat = 'identity', width = 0.9,
+           aes(x = reorder(Country.Region, n), y = n)) +
+  coord_flip() +
+  labs(title = 'Confirmed COVID 19 Cases By Country (Top 15)', x = 'Country', y = 'Confirmed Cases') +
+  scale_y_continuous(labels = scales::comma) +
+  geom_text(aes(Country.Region, n, label = n), hjust = -0.1, size = 3.5, color = 'black',
+            inherit.aes = TRUE, position = position_dodge(width = 1.2)) +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 18, face ='bold'),
+        plot.title = element_text(size = 25, hjust = 0.5))
+```
+
+```{r confirmedMap, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_ts_confirmed_cases %>% 
+  filter(Date == max(Date)) %>% 
+  ggplot() +
+  borders('world', color = '#000000', fill = '#663399', resolution = 0.1) +
+  theme_map(base_size = 25) +
+  geom_point(aes(x = Long, y = Lat, size = Confirmed_Cases),
+             color = '#FF0000', alpha = .8) +
+  scale_size_continuous(range = c(1, 8)) +
+  labs(size = 'Confirmed Cases', title = 'Worlwide Confirmed COVID 19 Cases') +
+  theme(panel.background = element_rect(fill = '#00FFFF'),
+        plot.title= element_text(hjust = 0.5),
+        legend.position = 'top',
+        legend.box.just = 'right',
+        legend.justification = c('left', 'top'))
+```
+
+
+Looking at the above results, The US, India, and Brazil have the highest number of new COVID cases worldwide.
+
+### COVID 19 Recoveries
+```{r recoveriesPlot, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
+  group_by(Country.Region) %>% 
+  summarise(n = sum(Recovered)) %>% 
+  arrange(desc(n)) %>%
+  head(n = 15) %>% 
+  ggplot() +
+  geom_bar(fill = '#006400', stat = 'identity', width = 0.9,
+           aes(x = reorder(Country.Region, n), y = n)) +
+  coord_flip() +
+  labs(title = 'COVID 19 Recoveries By Country (Top 15)', x = 'Country', y = 'Recoveries') +
+  scale_y_continuous(labels = scales::comma) +
+  geom_text(aes(Country.Region, n, label = n), hjust = -0.1, size = 3.5, color = 'black',
+            inherit.aes = TRUE, position = position_dodge(width = 1.2)) +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 18, face ='bold'),
+        plot.title= element_text(size = 25, hjust = 0.5))
+```
+
+
+```{r recoveriesMap, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_ts_recovered %>% 
+  filter(Date == max(Date)) %>% 
+  ggplot() +
+  borders('world', color = '#000000', fill = '#006400', resolution = 0.1) +
+  theme_map(base_size = 25) +
+  geom_point(aes(x = Long, y = Lat, size = Recovered),
+             color = '#DAA520', alpha = .8) +
+  scale_size_continuous(range = c(1, 8)) +
+  labs(size = 'Recoveries', title = 'Worlwide COVID 19 Recoveries') +
+  theme(panel.background = element_rect(fill = '#00FFFF'),
+        plot.title= element_text(hjust = 0.5),
+        legend.position = 'top',
+        legend.box.just = 'right',
+        legend.justification = c('left', 'top'))
+```
+
+
+In terms of COVID 19 recoveries, the US does not even show up on the Recoveries bar chart, but India and Brazil continue to be at the top of the chart. So what does that say about recovery rates? Let's see how this relates to worldwide COVID deaths.
+
+
+### COVID 19 Deaths
+```{r covidDeathsPlot, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_data_main %>% filter(ObservationDate == max(ObservationDate)) %>%
+  group_by(Country.Region) %>% 
+  summarise(n = sum(Deaths)) %>% 
+  arrange(desc(n)) %>%
+  head(n = 15) %>% 
+  ggplot() +
+  geom_bar(fill = '#B22222', stat = 'identity', width = 0.9,
+           aes(x = reorder(Country.Region, n), y = n)) +
+  coord_flip() +
+  labs(title = 'COVID 19 Deaths By Country (Top 15)', x = 'Country', y = 'Deaths') +
+  scale_y_continuous(labels = scales::comma) +
+  geom_text(aes(Country.Region, n, label = n), hjust = -0.1, size = 3.5, color = 'black',
+            inherit.aes = TRUE, position = position_dodge(width = 1.2)) +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 18, face ='bold'),
+        plot.title= element_text(size = 25, hjust = 0.5))
+```
+
+
+```{r deathsMap, fig.height = 10, fig.width = 16, eval=TRUE, message=FALSE, warning=FALSE}
+covid_ts_deaths %>% 
+  filter(Date == max(Date)) %>% 
+  ggplot() +
+  borders('world', color = '#000000', fill = '#B22222', resolution = 0.1) +
+  theme_map(base_size = 25) +
+  geom_point(aes(x = Long, y = Lat, size = Deaths),
+             color = '#000000', alpha = .8) +
+  scale_size_continuous(range = c(1, 8)) +
+  labs(size = 'Deaths', title = 'Worlwide COVID 19 Deaths') +
+  theme(panel.background = element_rect(fill = '#00FFFF'),
+        plot.title= element_text(hjust = 0.5),
+        legend.position = 'top',
+        legend.box.just = 'right',
+        legend.justification = c('left', 'top'))
+```
+
+Unsurprisingly, The US shows up at the top of the deaths chart which makes sense in terms of the other 2 charts.
+
+
+## Conclusion
+
+According to the findings of our investigation above, we can answer our questions as follows:
+
+**Which countries have the highest number of confirmed COVID 19 cases?**
+
+- US
+
+- India
+
+- Brazil
+
+
+**Which countries have the highest number of COVID 19 deaths?**
+
+- US
+
+- Brazil
+
+- India
+
+
+**Which countries have the highest number of COVID 19 recoveries?**
+
+- India
+
+- Brazil
+
+- Russia
