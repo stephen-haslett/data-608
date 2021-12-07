@@ -1,0 +1,88 @@
+---
+title: "Data 608 Final Project Proposal"
+subtitle: "Worldwide COVID 19 Infection Rates, Deaths, and Recoveries"
+author: "Stephen Haslett"
+date: "10/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment Objective
+
+For my final project I intend to explore worldwide COVID 19 infection rates, deaths, and recoveries with the intention of answering the following questions:
+
+- Which countries have the highest number of confirmed COVID 19 cases?
+
+- Which countries have the highest number of COVID 19 deaths?
+
+- Which countries have the highest number of COVID 19 recoveries?
+
+
+## Data Source
+
+The data source I intend to use for this project is the [Novel Corona Virus 2019](https://www.kaggle.com/sudalairajkumar/novel-corona-virus-2019-dataset) dataset which is available via **kaggle.com**. The dataset was taken from the [John Hopkins University COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19).
+
+The dataset consists of 6 different CSV files:
+
+- **covid_19_data**  
+    _The main dataset that will be used for this project. This file contains data on worldwide COVID cases_,  
+    _deaths, and recoveries broken down by Country/Region, and Province/State were applicable._
+
+- **time_series_covid_19_confirmed**  
+    _Time series data on the number of confirmed cases worldwide._  
+    _The file contains longitude and latitude data that can be used to plot cases on a map._  
+
+- **time_series_covid_19_confirmed_US**  
+    _Time series data on the number of confirmed cases in the US at the county level._  
+    _This file will not be used in this project._
+
+- **time_series_covid_19_deaths**  
+    _Time series data on the number of COVID deaths worldwide._
+
+- **time_series_covid_19_deaths_US**  
+    _Time series data on the number of COVID deaths in the US at the county level._  
+    _This file will not be used in this project._
+
+- **time_series_covid_19_recovered**  
+    _Time series data on the number of COVID recoveries worlwide._
+
+
+## Visualization
+
+In order to visualize the data, I will use 2 main static visualizations:
+
+- A **_Horizontal Bar Chart_** to show a side-by-side comparison of per-country COVID 19 related statistics. This will allow the user to gain insight into the data at a glance.
+
+- A **_World Map_** containing per-country COVID data points. The size of the plots on the map will be reflective of the amount of COVID related cases in the country they are ploted on (_The larger the data plot size, the larger the amount of COVID related cases_).
+
+
+## Technologies
+
+The following R packages will be utilized in this project:
+
+- **tidyr**
+     
+     This package will be used to shape the data into a usable format (_i.e. converting data that is in a wide format to a long format_.).
+
+- **stringr**
+
+     This package will be used to replace NA values with meaningful values.
+
+- **lubridate**
+
+     This package will be used to format dates.
+     
+- **ggplot2**
+
+    This package will be used to create the _horizontal bar charts_ and _world maps_.
+    
+- **kableExtra**
+
+    This package will be used to create data tables.
+    
+- **Hmisc**
+
+    This package will be used to gain insight into data via the package's _summary()_ function.
